@@ -1,7 +1,7 @@
 // out: ..
 <template lang="jade">
 .clusterize(
-  v-bind:style="style"
+  v-bind:style="{width:width+'px', height:height+'px', max-width:maxWidth+'px'}"
   v-bind:class="{'scroll-bar-x':scrollBars.x, 'scroll-bar-y':scrollBars.y}"
   @mouseenter="onHover"
   @mouseleave="onHover"
@@ -34,7 +34,6 @@ module.exports =
     "scrollBars":
       type: Object
       default: -> x:true, y: true
-
     "autoStart":
       type: Boolean
       default: true
@@ -49,10 +48,6 @@ module.exports =
       type: Object
       default: -> left: -1, top: -1
   data: ->
-    style:
-      width: null
-      height: null
-      "max-width": null
     firstRowHeight: null
     lastRowHeight: null
     rowCount: @data.length
@@ -70,7 +65,6 @@ module.exports =
       height: 0
       width: 0
   methods:
-
     calcRowHeight: (dataSet,cb) ->
       @clusters[0].data = [dataSet]
       @$nextTick => @$nextTick =>
@@ -196,8 +190,6 @@ module.exports =
           @clustersCount = Math.ceil(@rowsCount/@clusterSize)
           @updateLastRowHeight()
       getDataCount processDataCount
-
-
     start: ->
       if @data.length > 0
         @$watch("data", @processData) # watch data only if static
@@ -219,24 +211,12 @@ module.exports =
       @scrollBarSize.height = @$el.offsetHeight - @$el.clientHeight
     checkScrollBarWidth: ->
       @scrollBarSize.width = @$el.offsetWidth - @$el.clientWidth
-    updateHeight: (height=@height, oldHeight) ->
-      if height >0
-        @style.height = height+"px"
-      else
-        @style.height = null
+    updateHeight: (height, oldHeight) ->
       if @rowHeight > -1 and Math.abs(oldHeight-height)> 0.8*height
         @$nextTick @calcClusterSize
-    updateWidth: (width=@width) ->
-      if width >0
-        @style.width = width+"px"
-      else
-        @style.width = null
     updateMaxWidth: (width=@maxWidth) ->
       @style["max-width"] = width+"px"
   compiled: ->
-    @updateHeight() if @height
-    @updateWidth() if @width
-    @updateMaxWidth() if @maxWidth
     for cluster in @$children
       if cluster.isCluster
         @clusters.push cluster
@@ -244,9 +224,7 @@ module.exports =
     if @autoStart
       @start()
   watch:
-    "width": "updateWidth"
     "height": "updateHeight"
-    "maxWidth": "updateMaxWidth"
     "scrollPosition.top": "setScrollTop"
     "scrollPosition.left": "setScrollLeft"
     "position": "setPosition"

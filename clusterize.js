@@ -57,11 +57,6 @@ module.exports = {
   },
   data: function() {
     return {
-      style: {
-        width: null,
-        height: null,
-        "max-width": null
-      },
       firstRowHeight: null,
       lastRowHeight: null,
       rowCount: this.data.length,
@@ -309,26 +304,8 @@ module.exports = {
       return this.scrollBarSize.width = this.$el.offsetWidth - this.$el.clientWidth;
     },
     updateHeight: function(height, oldHeight) {
-      if (height == null) {
-        height = this.height;
-      }
-      if (height > 0) {
-        this.style.height = height + "px";
-      } else {
-        this.style.height = null;
-      }
       if (this.rowHeight > -1 && Math.abs(oldHeight - height) > 0.8 * height) {
         return this.$nextTick(this.calcClusterSize);
-      }
-    },
-    updateWidth: function(width) {
-      if (width == null) {
-        width = this.width;
-      }
-      if (width > 0) {
-        return this.style.width = width + "px";
-      } else {
-        return this.style.width = null;
       }
     },
     updateMaxWidth: function(width) {
@@ -340,15 +317,6 @@ module.exports = {
   },
   compiled: function() {
     var cluster, i, len, ref, results;
-    if (this.height) {
-      this.updateHeight();
-    }
-    if (this.width) {
-      this.updateWidth();
-    }
-    if (this.maxWidth) {
-      this.updateMaxWidth();
-    }
     ref = this.$children;
     results = [];
     for (i = 0, len = ref.length; i < len; i++) {
@@ -367,9 +335,7 @@ module.exports = {
     }
   },
   watch: {
-    "width": "updateWidth",
     "height": "updateHeight",
-    "maxWidth": "updateMaxWidth",
     "scrollPosition.top": "setScrollTop",
     "scrollPosition.left": "setScrollLeft",
     "position": "setPosition"
@@ -377,7 +343,7 @@ module.exports = {
 };
 
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<div v-bind:style=\"style\" v-bind:class=\"{'scroll-bar-x':scrollBars.x, 'scroll-bar-y':scrollBars.y}\" @mouseenter=\"onHover\" @mouseleave=\"onHover\" @scroll=\"onScroll\" class=\"clusterize\"><div v-el:first-row=\"v-el:first-row\" v-bind:style=\"{height:firstRowHeight+'px'}\" class=\"clusterize-first-row\"></div><clusterize-cluster v-for=\"cluster in 4\" v-bind:row-height=\"rowHeight\"><slot :data=\"test\" v-for=\"test in 2\"></slot></clusterize-cluster><div v-el:last-row=\"v-el:last-row\" v-bind:style=\"{height:lastRowHeight+'px'}\" class=\"clusterize-last-row\"></div></div>"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<div v-bind:style=\"{width:width+'px', height:height+'px', max-width:maxWidth+'px'}\" v-bind:class=\"{'scroll-bar-x':scrollBars.x, 'scroll-bar-y':scrollBars.y}\" @mouseenter=\"onHover\" @mouseleave=\"onHover\" @scroll=\"onScroll\" class=\"clusterize\"><div v-el:first-row=\"v-el:first-row\" v-bind:style=\"{height:firstRowHeight+'px'}\" class=\"clusterize-first-row\"></div><clusterize-cluster v-for=\"cluster in 4\" v-bind:row-height=\"rowHeight\"><slot :data=\"test\" v-for=\"test in 2\"></slot></clusterize-cluster><div v-el:last-row=\"v-el:last-row\" v-bind:style=\"{height:lastRowHeight+'px'}\" class=\"clusterize-last-row\"></div></div>"
 if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
