@@ -1,0 +1,13 @@
+//- out: .
+doctype html
+html(lang="de")
+  head
+    meta(charset="utf-8")
+    
+  body(style="display:flex")
+    div(id="app" style="height:400px;flex: 0 1 auto;min-width:300px;border:3px solid black;padding:8px")
+      clusterize(v-bind:data="rowsData")
+        clusterize-row
+          .div {{data}}
+    div(id="mocha" style="flex: 0 1 auto")
+    script(src="index.js")
