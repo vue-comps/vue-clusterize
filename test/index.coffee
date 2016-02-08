@@ -8,13 +8,6 @@ app = new Vue
     "clusterize": require "../clusterize.js"
     "clusterize-row": require "../clusterize-row.js"
   data: ->
-    rowsData: (x for x in [1...1000])
-  methods:
-    rowsBuilder: (count) ->
-      rows = []
-      for j in [1..count]
-        row = new Vue(require("../clusterize-row.js"))
-        rows.push row
-      return rows
+    rowsData: (x for x in [1...10000])
 
 ClusterizeTest = require "mocha!./clusterize.coffee"

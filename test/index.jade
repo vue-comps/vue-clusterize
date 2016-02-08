@@ -1,13 +1,14 @@
 //- out: .
 doctype html
-html(lang="de")
+html(lang="de", style="height:100%")
   head
     meta(charset="utf-8")
     
-  body(style="display:flex")
-    div(id="app" style="height:400px;flex: 0 1 auto;min-width:300px;border:3px solid black;padding:8px")
-      clusterize(v-bind:data="rowsData")
+  body(style="display:flex;height:100%")
+    div(id="app" style="position:relative;flex: 0 1 auto;min-width:300px;border:3px solid black;padding:8px")
+      clusterize(v-bind:data="rowsData" v-bind:auto-height="true")
         clusterize-row
-          .div {{data}}
+          {{data}}
+        p(slot="loading") loading
     div(id="mocha" style="flex: 0 1 auto")
     script(src="index.js")

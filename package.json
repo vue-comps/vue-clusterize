@@ -1,7 +1,7 @@
 {
   "name": "vue-clusterize",
   "description": "clusterize - done in vue",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "homepage": "https://github.com/paulpflug/vue-clusterize",
   "author": {
     "name": "Paul Pflugradt",
@@ -16,7 +16,8 @@
     "node": "*"
   },
   "dependencies": {
-    "vueify-insert-css": "^1.0.0"
+    "vueify-insert-css": "^1.0.0",
+    "vue-mixins": "0.1.1"
   },
   "devDependencies": {
     "babel-core": "^6.4.0",
@@ -38,7 +39,7 @@
     "style-loader": "^0.13.0",
     "template-html-loader": "0.0.3",
     "url-loader": "^0.5.7",
-    "vue": "^1.0.14",
+    "vue": "^1.0.16",
     "vue-compiler": "^0.0.2",
     "vue-hot-reload-api": "^1.2.2",
     "vue-html-loader": "^1.1.0",
