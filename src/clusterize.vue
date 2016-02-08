@@ -1,6 +1,7 @@
 // out: ..
 <template lang="jade">
 .clusterize(
+  v-bind:style="{height:height+'px'}"
   v-bind:class="{'scroll-bar-x':scrollBars.x, 'scroll-bar-y':scrollBars.y, 'auto-height':autoHeight}"
   @mouseenter="onHover"
   @mouseleave="onHover"
@@ -32,6 +33,8 @@ module.exports =
     "bindingName":
       type: String
       default: "data"
+    "height":
+      type: Number
     "autoHeight":
       type: Boolean
       default: false
@@ -249,6 +252,7 @@ module.exports =
       @start()
     @processAutoHeight()
   watch:
+    "height" : "updateHeight"
     "autoHeight": "processAutoHeight"
     "scrollPosition.top": "setScrollTop"
     "scrollPosition.left": "setScrollLeft"

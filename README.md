@@ -41,6 +41,7 @@ clusterize(v-bind:data="rowsData")
 | Name | type | default | description |
 | ---:| --- | ---| --- |
 | bindingName | String | "data" | name to access the data in your template |
+| height | Number | null | Height of the clusterize element |
 | autoHeight | Boolean | false | If autoheight should be used (see below) |
 | scrollBars | object | {x:true,y:true}| should there be scrollbars on hover |
 | autoStart | Boolean | true | rendering starts on `ready` (otherwise call `start`)|
@@ -54,9 +55,8 @@ clusterize(v-bind:data="rowsData")
 There are two ways clusterize can be used, either use a fixed height:
 ```jade
 //- in the template
-clusterize(v-bind:data="rowsData" style="height: 400px" v-ref:clusterize)
+clusterize(v-bind:data="rowsData" v-bind:height="400" v-ref:clusterize)
 ```
-make sure to call the `this.$refs.clusterize.updateHeight()` function when you change the height at runtime
 
 Or use autoheight:
 ```jade

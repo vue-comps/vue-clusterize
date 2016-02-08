@@ -9,6 +9,9 @@ module.exports = {
       type: String,
       "default": "data"
     },
+    "height": {
+      type: Number
+    },
     "autoHeight": {
       type: Boolean,
       "default": false
@@ -364,6 +367,7 @@ module.exports = {
     return this.processAutoHeight();
   },
   watch: {
+    "height": "updateHeight",
     "autoHeight": "processAutoHeight",
     "scrollPosition.top": "setScrollTop",
     "scrollPosition.left": "setScrollLeft",
@@ -374,7 +378,7 @@ module.exports = {
 };
 
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<div v-bind:class=\"{'scroll-bar-x':scrollBars.x, 'scroll-bar-y':scrollBars.y, 'auto-height':autoHeight}\" @mouseenter=\"onHover\" @mouseleave=\"onHover\" @scroll=\"onScroll\" class=\"clusterize\"><div v-el:first-row=\"v-el:first-row\" v-bind:style=\"{height:firstRowHeight+'px'}\" class=\"clusterize-first-row\"></div><clusterize-cluster v-bind:row-height=\"rowHeight\" v-bind:bindingName=\"bindingName\"><slot name=\"loading\"></slot></clusterize-cluster><clusterize-cluster v-bind:row-height=\"rowHeight\" v-bind:bindingName=\"bindingName\"><slot name=\"loading\"></slot></clusterize-cluster><clusterize-cluster v-bind:row-height=\"rowHeight\" v-bind:bindingName=\"bindingName\"><slot name=\"loading\"></slot></clusterize-cluster><clusterize-cluster v-bind:row-height=\"rowHeight\" v-bind:bindingName=\"bindingName\"><slot name=\"loading\"></slot></clusterize-cluster><div v-el:last-row=\"v-el:last-row\" v-bind:style=\"{height:lastRowHeight+'px'}\" class=\"clusterize-last-row\"></div><div style=\"display:none\"><slot></slot></div></div>"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<div v-bind:style=\"{height:height+'px'}\" v-bind:class=\"{'scroll-bar-x':scrollBars.x, 'scroll-bar-y':scrollBars.y, 'auto-height':autoHeight}\" @mouseenter=\"onHover\" @mouseleave=\"onHover\" @scroll=\"onScroll\" class=\"clusterize\"><div v-el:first-row=\"v-el:first-row\" v-bind:style=\"{height:firstRowHeight+'px'}\" class=\"clusterize-first-row\"></div><clusterize-cluster v-bind:row-height=\"rowHeight\" v-bind:bindingName=\"bindingName\"><slot name=\"loading\"></slot></clusterize-cluster><clusterize-cluster v-bind:row-height=\"rowHeight\" v-bind:bindingName=\"bindingName\"><slot name=\"loading\"></slot></clusterize-cluster><clusterize-cluster v-bind:row-height=\"rowHeight\" v-bind:bindingName=\"bindingName\"><slot name=\"loading\"></slot></clusterize-cluster><clusterize-cluster v-bind:row-height=\"rowHeight\" v-bind:bindingName=\"bindingName\"><slot name=\"loading\"></slot></clusterize-cluster><div v-el:last-row=\"v-el:last-row\" v-bind:style=\"{height:lastRowHeight+'px'}\" class=\"clusterize-last-row\"></div><div style=\"display:none\"><slot></slot></div></div>"
 if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
