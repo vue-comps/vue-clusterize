@@ -7,15 +7,14 @@
   @mouseleave="onHover"
   @scroll="onScroll"
   )
-
   .clusterize-first-row(v-el:first-row v-bind:style="{height:firstRowHeight+'px'}")
-  clusterize-cluster(v-bind:row-height="rowHeight" v-bind:bindingName="bindingName")
+  clusterize-cluster(v-bind:row-height="rowHeight" v-bind:binding-name="bindingName")
     slot(name="loading")
-  clusterize-cluster(v-bind:row-height="rowHeight" v-bind:bindingName="bindingName")
+  clusterize-cluster(v-bind:row-height="rowHeight" v-bind:binding-name="bindingName")
     slot(name="loading")
-  clusterize-cluster(v-bind:row-height="rowHeight" v-bind:bindingName="bindingName")
+  clusterize-cluster(v-bind:row-height="rowHeight" v-bind:binding-name="bindingName")
     slot(name="loading")
-  clusterize-cluster(v-bind:row-height="rowHeight" v-bind:bindingName="bindingName")
+  clusterize-cluster(v-bind:row-height="rowHeight" v-bind:binding-name="bindingName")
     slot(name="loading")
   .clusterize-last-row(v-el:last-row v-bind:style="{height:lastRowHeight+'px'}")
   div(style="display:none")
@@ -23,6 +22,7 @@
 </template>
 
 <script lang="coffee">
+Vue = require "vue"
 module.exports =
   mixins: [
     require "vue-mixins/onResize"
@@ -244,7 +244,7 @@ module.exports =
     throw new Error "no clusterize-row was found" unless @rowObj?
     frag = @rowObj.$options.template
     frag = frag.replace(/<\/div>$/,@rowObj.$options._content.innerHTML+"</div>")
-    factory = new @$root.constructor.FragmentFactory @$parent, frag
+    factory = new Vue.FragmentFactory @$parent, frag
     for cluster in @clusters
       cluster.factory = factory
   ready: ->
@@ -256,7 +256,6 @@ module.exports =
     "autoHeight": "processAutoHeight"
     "scrollPosition.top": "setScrollTop"
     "scrollPosition.left": "setScrollLeft"
-    "position": "setPosition"
     "dataGetter": "redraw"
     "rowCounter" : "getAndProcessDataCount"
 </script>

@@ -1,4 +1,8 @@
-var __vueify_style__ = require("vueify-insert-css").insert("div.clusterize-cluster {\n  overflow: visible;\n  margin: 0;\n  padding: 0;\n  position: relative;\n}\n")
+var __vueify_style__ = require("vueify-insert-css").insert("div.clusterize-cluster{overflow:visible;margin:0;padding:0;position:relative}")
+var Vue;
+
+Vue = require("vue");
+
 module.exports = {
   props: {
     "bindingName": {
@@ -31,9 +35,8 @@ module.exports = {
       frags: []
     };
   },
-  ready: function() {
-    this.Vue = this.$root.constructor;
-    this.end = this.Vue.util.createAnchor('clusterize-cluster-end');
+  compiled: function() {
+    this.end = Vue.util.createAnchor('clusterize-cluster-end');
     return this.$el.appendChild(this.end);
   },
   methods: {
@@ -45,9 +48,8 @@ module.exports = {
       scope.$els = Object.create(parentScope.$els);
       scope.$parent = parentScope;
       scope.$forContext = this;
-      this.Vue.util.defineReactive(scope, this.bindingName, this.data[i]);
-      this.Vue.util.defineReactive(scope, "height", this.rowHeight);
-      this.Vue.util.defineReactive(scope, "loading", this.loading);
+      Vue.util.defineReactive(scope, this.bindingName, this.data[i]);
+      Vue.util.defineReactive(scope, "height", this.rowHeight);
       frag = this.factory.create(this, scope, this.$options._frag);
       frag.before(this.end);
       return this.frags[i] = frag;
@@ -59,6 +61,7 @@ module.exports = {
   watch: {
     data: function(newData, oldData) {
       var diff, frag, i, index, j, k, l, len, ref, ref1, ref2, results;
+      console.log(newData);
       diff = newData.length - oldData.length;
       if (diff > 0) {
         for (i = j = 0, ref = diff; 0 <= ref ? j < ref : j > ref; i = 0 <= ref ? ++j : --j) {
@@ -86,34 +89,9 @@ module.exports = {
         results.push(frag.scope.height = newHeight);
       }
       return results;
-    },
-    loading: function(loading) {
-      var frag, index, j, len, ref, results;
-      ref = this.frags;
-      results = [];
-      for (index = j = 0, len = ref.length; j < len; index = ++j) {
-        frag = ref[index];
-        results.push(frag.scope.loading = loading);
-      }
-      return results;
     }
   }
 };
 
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<div class=\"clusterize-cluster\"><div v-el:loading=\"v-el:loading\" v-bind:style=\"{height:data.length*rowHeight+'px'}\" v-show=\"loading\" class=\"clusterize-cluster-loading\"><slot>loading...</slot></div></div>"
-if (module.hot) {(function () {  module.hot.accept()
-  var hotAPI = require("vue-hot-reload-api")
-  hotAPI.install(require("vue"), true)
-  if (!hotAPI.compatible) return
-  var id = "/home/peaul"
-  module.hot.dispose(function () {
-    require("vueify-insert-css").cache["div.clusterize-cluster {\n  overflow: visible;\n  margin: 0;\n  padding: 0;\n  position: relative;\n}\n"] = false
-    document.head.removeChild(__vueify_style__)
-  })
-  if (!module.hot.data) {
-    hotAPI.createRecord(id, module.exports)
-  } else {
-    hotAPI.update(id, module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
-  }
-})()}
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<div v-bind:class={loading:loading} class=clusterize-cluster><div v-el:loading=v-el:loading v-bind:style=\"{height:data.length*rowHeight+'px'}\" v-show=loading class=clusterize-cluster-loading><slot>loading...</slot></div></div>"

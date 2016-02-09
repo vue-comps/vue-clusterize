@@ -1,4 +1,8 @@
-var __vueify_style__ = require("vueify-insert-css").insert(".clusterize {\n  overflow: hidden;\n}\n.clusterize.scroll-bar-x:hover {\n  overflow-x: auto;\n}\n.clusterize.scroll-bar-y:hover {\n  overflow-y: auto;\n}\n.clusterize.auto-height {\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  left: 0;\n  right: 0;\n}\n")
+var __vueify_style__ = require("vueify-insert-css").insert(".clusterize{overflow:hidden}.clusterize.scroll-bar-x:hover{overflow-x:auto}.clusterize.scroll-bar-y:hover{overflow-y:auto}.clusterize.auto-height{position:absolute;top:0;bottom:0;left:0;right:0}")
+var Vue;
+
+Vue = require("vue");
+
 module.exports = {
   mixins: [require("vue-mixins/onResize")],
   components: {
@@ -351,7 +355,7 @@ module.exports = {
     }
     frag = this.rowObj.$options.template;
     frag = frag.replace(/<\/div>$/, this.rowObj.$options._content.innerHTML + "</div>");
-    factory = new this.$root.constructor.FragmentFactory(this.$parent, frag);
+    factory = new Vue.FragmentFactory(this.$parent, frag);
     ref1 = this.clusters;
     results = [];
     for (j = 0, len1 = ref1.length; j < len1; j++) {
@@ -371,26 +375,10 @@ module.exports = {
     "autoHeight": "processAutoHeight",
     "scrollPosition.top": "setScrollTop",
     "scrollPosition.left": "setScrollLeft",
-    "position": "setPosition",
     "dataGetter": "redraw",
     "rowCounter": "getAndProcessDataCount"
   }
 };
 
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<div v-bind:style=\"{height:height+'px'}\" v-bind:class=\"{'scroll-bar-x':scrollBars.x, 'scroll-bar-y':scrollBars.y, 'auto-height':autoHeight}\" @mouseenter=\"onHover\" @mouseleave=\"onHover\" @scroll=\"onScroll\" class=\"clusterize\"><div v-el:first-row=\"v-el:first-row\" v-bind:style=\"{height:firstRowHeight+'px'}\" class=\"clusterize-first-row\"></div><clusterize-cluster v-bind:row-height=\"rowHeight\" v-bind:bindingName=\"bindingName\"><slot name=\"loading\"></slot></clusterize-cluster><clusterize-cluster v-bind:row-height=\"rowHeight\" v-bind:bindingName=\"bindingName\"><slot name=\"loading\"></slot></clusterize-cluster><clusterize-cluster v-bind:row-height=\"rowHeight\" v-bind:bindingName=\"bindingName\"><slot name=\"loading\"></slot></clusterize-cluster><clusterize-cluster v-bind:row-height=\"rowHeight\" v-bind:bindingName=\"bindingName\"><slot name=\"loading\"></slot></clusterize-cluster><div v-el:last-row=\"v-el:last-row\" v-bind:style=\"{height:lastRowHeight+'px'}\" class=\"clusterize-last-row\"></div><div style=\"display:none\"><slot></slot></div></div>"
-if (module.hot) {(function () {  module.hot.accept()
-  var hotAPI = require("vue-hot-reload-api")
-  hotAPI.install(require("vue"), true)
-  if (!hotAPI.compatible) return
-  var id = "/home/peaul"
-  module.hot.dispose(function () {
-    require("vueify-insert-css").cache[".clusterize {\n  overflow: hidden;\n}\n.clusterize.scroll-bar-x:hover {\n  overflow-x: auto;\n}\n.clusterize.scroll-bar-y:hover {\n  overflow-y: auto;\n}\n.clusterize.auto-height {\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  left: 0;\n  right: 0;\n}\n"] = false
-    document.head.removeChild(__vueify_style__)
-  })
-  if (!module.hot.data) {
-    hotAPI.createRecord(id, module.exports)
-  } else {
-    hotAPI.update(id, module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
-  }
-})()}
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<div v-bind:style=\"{height:height+'px'}\" v-bind:class=\"{'scroll-bar-x':scrollBars.x, 'scroll-bar-y':scrollBars.y, 'auto-height':autoHeight}\" @mouseenter=onHover @mouseleave=onHover @scroll=onScroll class=clusterize><div v-el:first-row=v-el:first-row v-bind:style=\"{height:firstRowHeight+'px'}\" class=clusterize-first-row></div><clusterize-cluster v-bind:row-height=rowHeight v-bind:binding-name=bindingName><slot name=loading></slot></clusterize-cluster><clusterize-cluster v-bind:row-height=rowHeight v-bind:binding-name=bindingName><slot name=loading></slot></clusterize-cluster><clusterize-cluster v-bind:row-height=rowHeight v-bind:binding-name=bindingName><slot name=loading></slot></clusterize-cluster><clusterize-cluster v-bind:row-height=rowHeight v-bind:binding-name=bindingName><slot name=loading></slot></clusterize-cluster><div v-el:last-row=v-el:last-row v-bind:style=\"{height:lastRowHeight+'px'}\" class=clusterize-last-row></div><div style=display:none><slot></slot></div></div>"
