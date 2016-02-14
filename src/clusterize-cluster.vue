@@ -1,12 +1,11 @@
 // out: ..
 <template lang="jade">
-.clusterize-cluster(v-bind:class="{loading:loading}")
-  .clusterize-cluster-loading(v-el:loading v-bind:style="{height:data.length*rowHeight+'px'}" v-show="loading")
+.clusterize-cluster(v-bind:class="{loading:loading}" v-bind:style="{height:height+'px'}")
+  .clusterize-cluster-loading(v-el:loading  v-show="loading")
     slot loading...
 </template>
 
 <script lang="coffee">
-Vue = require "vue"
 module.exports =
   props:
     "bindingName":
@@ -19,6 +18,8 @@ module.exports =
       type: Number
     "rowHeight":
       type: Number
+    "height":
+      type: Number
     "data":
       type: Array
       default: -> []
@@ -29,7 +30,11 @@ module.exports =
     end: null
     frags: []
   compiled: ->
-    @end = Vue.util.createAnchor('clusterize-cluster-end')
+    if @$root.construtor?
+      @Vue = @$root.construtor
+    else
+      @Vue = Object.getPrototypeOf(Object.getPrototypeOf(@$root)).constructor
+    @end = @Vue.util.createAnchor('clusterize-cluster-end')
     @$el.appendChild(@end)
   methods:
     createFrag: (i) ->
@@ -39,8 +44,8 @@ module.exports =
       scope.$els = Object.create(parentScope.$els)
       scope.$parent = parentScope
       scope.$forContext = @
-      Vue.util.defineReactive(scope,@bindingName,@data[i])
-      Vue.util.defineReactive(scope,"height",@rowHeight)
+      @Vue.util.defineReactive(scope,@bindingName,@data[i])
+      @Vue.util.defineReactive(scope,"height",@rowHeight)
       frag = @factory.create(@, scope, @$options._frag)
       frag.before(@end)
       @frags[i] = frag
@@ -48,7 +53,6 @@ module.exports =
       @frags[i].remove()
   watch:
     data: (newData, oldData)->
-      console.log newData
       diff = newData.length-oldData.length
       if diff > 0
         for i in [0...diff]
@@ -68,4 +72,7 @@ div.clusterize-cluster
   margin 0
   padding 0
   position relative
+.clusterize-cluster.loading > .clusterize-row
+  display none
+
 </style>

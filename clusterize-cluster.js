@@ -1,8 +1,4 @@
-var __vueify_style__ = require("vueify-insert-css").insert("div.clusterize-cluster{overflow:visible;margin:0;padding:0;position:relative}")
-var Vue;
-
-Vue = require("vue");
-
+var __vueify_style__ = require("vueify-insert-css").insert("div.clusterize-cluster{overflow:visible;margin:0;padding:0;position:relative}.clusterize-cluster.loading>.clusterize-row{display:none}")
 module.exports = {
   props: {
     "bindingName": {
@@ -17,6 +13,9 @@ module.exports = {
       type: Number
     },
     "rowHeight": {
+      type: Number
+    },
+    "height": {
       type: Number
     },
     "data": {
@@ -36,7 +35,12 @@ module.exports = {
     };
   },
   compiled: function() {
-    this.end = Vue.util.createAnchor('clusterize-cluster-end');
+    if (this.$root.construtor != null) {
+      this.Vue = this.$root.construtor;
+    } else {
+      this.Vue = Object.getPrototypeOf(Object.getPrototypeOf(this.$root)).constructor;
+    }
+    this.end = this.Vue.util.createAnchor('clusterize-cluster-end');
     return this.$el.appendChild(this.end);
   },
   methods: {
@@ -48,8 +52,8 @@ module.exports = {
       scope.$els = Object.create(parentScope.$els);
       scope.$parent = parentScope;
       scope.$forContext = this;
-      Vue.util.defineReactive(scope, this.bindingName, this.data[i]);
-      Vue.util.defineReactive(scope, "height", this.rowHeight);
+      this.Vue.util.defineReactive(scope, this.bindingName, this.data[i]);
+      this.Vue.util.defineReactive(scope, "height", this.rowHeight);
       frag = this.factory.create(this, scope, this.$options._frag);
       frag.before(this.end);
       return this.frags[i] = frag;
@@ -61,7 +65,6 @@ module.exports = {
   watch: {
     data: function(newData, oldData) {
       var diff, frag, i, index, j, k, l, len, ref, ref1, ref2, results;
-      console.log(newData);
       diff = newData.length - oldData.length;
       if (diff > 0) {
         for (i = j = 0, ref = diff; 0 <= ref ? j < ref : j > ref; i = 0 <= ref ? ++j : --j) {
@@ -94,4 +97,4 @@ module.exports = {
 };
 
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<div v-bind:class={loading:loading} class=clusterize-cluster><div v-el:loading=v-el:loading v-bind:style=\"{height:data.length*rowHeight+'px'}\" v-show=loading class=clusterize-cluster-loading><slot>loading...</slot></div></div>"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<div v-bind:class={loading:loading} v-bind:style=\"{height:height+'px'}\" class=clusterize-cluster><div v-el:loading=v-el:loading v-show=loading class=clusterize-cluster-loading><slot>loading...</slot></div></div>"

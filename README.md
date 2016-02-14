@@ -2,8 +2,10 @@
 
 An implementation of [Clusterize.js](https://nexts.github.io/Clusterize.js/) in [vue](http://vuejs.org/).
 
-Works similar to `v-for` but only takes enough data to fill the viewport about 4 times.  
-This data is then splitted into four clusters which will move and get filled with the right data on scrolling.
+Works similar to `v-for` but only takes enough data to fill the viewport  3 times.  
+This data is then splitted into three clusters which will move and get filled with the right data on scrolling.
+
+### [See it in action](https://paulpflug.github.io/vue-clusterize)
 
 # Disclaimer
 
@@ -11,7 +13,6 @@ Only for [**webpack**](https://webpack.github.io/) workflows.
 
 **No jQuery dependency**
 
-### Works, but there are probably some bugs since there are no unit tests yet.
 
 # Install
 
@@ -37,6 +38,7 @@ clusterize(v-bind:data="rowsData")
     {{data}}
   p(slot="loading") loading...
 ```
+see `dev/` folder for more examples
 #### Props
 | Name | type | default | description |
 | ---:| --- | ---| --- |
@@ -46,9 +48,8 @@ clusterize(v-bind:data="rowsData")
 | scrollBars | object | {x:true,y:true}| should there be scrollbars on hover |
 | autoStart | Boolean | true | rendering starts on `ready` (otherwise call `start`)|
 | data | Array | [] | static data to render |
-| dataGetter | Function | null | used for dynamic data (see below) |
-| rowCounter | Function | null | used for dynamic data (see below) |
 | scrollPosition | Object | {left: -1, top: -1} | used to scroll to a specific position |
+| clusterSizeFac | Number | 1.5 | determines the cluster size relative to visible size |
 
 ## Autoheight
 
@@ -71,16 +72,23 @@ Keep in mind, that `padding` of the parent will be ignored. If you need a paddin
 
 ## Dynamic data
 
-The clusterize element can take two functions to get dynamic data:  
-`dataGetter(first,last,cb)` and `rowCounter(cb)` both should either call the `cb` or return a promise with the results.
+The clusterize instance emits to events to get dynamic data:
+```
+//- in the template
+<clusterize @get-data="getData" @get-data-count="getDataCount">
+  ...
 
-`dataGetter` is expected to call the `cb` or return a promise with an array containing the data to draw.  
-To get the first data piece `dataGetter(0,0,cb)` will be called.
-
-`rowCounter` is expected to call the `cb` or return a promise with the absolute number of data pieces available.  
-This is used to calculate the scrollbar.  
-`rowCounter` is optional but omitting will lead to a changing scrollbar on scroll.
-
+# In the containing component:
+methods:
+  # For the first datapiece, first and last will be 0
+  getData: function(first,last,cb) {
+      # somehow get data
+      cb(data)
+    }
+  getDataCount: function(cb) {
+    cb(dataCount)
+  }
+```
 To issue a manual redraw, call `redraw()` on the clusterize instance.
 
 If you want to enforce a scroll-to-top, call `setScrollTop(0)` or use the `scrollPosition` prop.
@@ -96,5 +104,5 @@ Browse to `http://localhost:8080/`
 Best development experience in [atom](https://atom.io/) with [vue-autocompile](https://atom.io/packages/vue-autocompile).
 
 ## License
-Copyright (c) 2015 Paul Pflugradt
+Copyright (c) 2016 Paul Pflugradt
 Licensed under the MIT license.

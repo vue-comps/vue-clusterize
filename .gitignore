@@ -3,4 +3,4 @@ node_modules
 *.sublime-workspace
 npm-debug.log
 build
-dev/index.coffee
+dev/index.js
