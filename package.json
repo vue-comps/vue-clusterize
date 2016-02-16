@@ -69,7 +69,7 @@
   ],
   "readmeFilename": "README.md",
   "scripts": {
-    "build": "NODE_ENV=production vue-compiler --out . src/*.vue",
+    "build": "NODE_ENV=production vue-compiler --out / src/*.vue",
     "dev": "vue-dev-server",
     "watch": "karma start --browsers Chrome --auto-watch --reporters spec",
     "test": "karma start --single-run",

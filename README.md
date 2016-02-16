@@ -103,6 +103,10 @@ Browse to `http://localhost:8080/`
 
 Best development experience in [atom](https://atom.io/) with [vue-autocompile](https://atom.io/packages/vue-autocompile).
 
+## To-Do
+- allow more than one (fixed-width) object per row + autosize to adjust #objects to actual width.
+- use html5 history mode or document.store to save scroll position
+
 ## License
 Copyright (c) 2016 Paul Pflugradt
 Licensed under the MIT license.
