@@ -48,14 +48,30 @@ module.exports = {
     "clusterSizeFac": {
       type: Number,
       "default": 1.5
+    },
+    "template": {
+      type: String
+    },
+    "rowWatchers": {
+      type: Object,
+      "default": function() {
+        return {
+          height: {
+            vm: this,
+            prop: "rowHeight"
+          }
+        };
+      }
+    },
+    "parentVm": {
+      type: Object,
+      "default": function() {
+        return this.$parent;
+      }
     }
   },
   data: function() {
     return {
-      state: {
-        started: false,
-        loading: false
-      },
       clusters: [],
       rowObj: null,
       firstRowHeight: null,
@@ -72,6 +88,10 @@ module.exports = {
       offsetHeight: 0,
       minHeight: null,
       disposeResizeCb: null,
+      state: {
+        started: false,
+        loading: false
+      },
       scrollBarSize: {
         height: 0,
         width: 0
@@ -325,6 +345,17 @@ module.exports = {
     },
     redraw: function() {
       return this.processClusterChange(this.$el.scrollTop, true);
+    },
+    updateTemplate: function() {
+      var cluster, factory, i, len, ref, results;
+      factory = new Vue.FragmentFactory(this.parentVm, this.template);
+      ref = this.clusters;
+      results = [];
+      for (i = 0, len = ref.length; i < len; i++) {
+        cluster = ref[i];
+        results.push(cluster.factory = factory);
+      }
+      return results;
     }
   },
   compiled: function() {
@@ -339,27 +370,37 @@ module.exports = {
         this.rowObj = child;
       }
     }
-    if (this.rowObj == null) {
-      throw new Error("no clusterize-row was found");
+    if (this.rowObj) {
+      frag = this.rowObj.$options.template;
+      frag = frag.replace(/<\/div>$/, this.rowObj.$options._content.innerHTML + "</div>");
+      factory = new Vue.FragmentFactory(this.parentVm, frag);
+      ref1 = this.clusters;
+      results = [];
+      for (j = 0, len1 = ref1.length; j < len1; j++) {
+        cluster = ref1[j];
+        results.push(cluster.factory = factory);
+      }
+      return results;
     }
-    frag = this.rowObj.$options.template;
-    frag = frag.replace(/<\/div>$/, this.rowObj.$options._content.innerHTML + "</div>");
-    factory = new Vue.FragmentFactory(this.$parent, frag);
-    ref1 = this.clusters;
-    results = [];
-    for (j = 0, len1 = ref1.length; j < len1; j++) {
-      cluster = ref1[j];
-      results.push(cluster.factory = factory);
-    }
-    return results;
   },
   watch: {
+    "template": "updateTemplate",
     "height": "updateHeight",
     "autoHeight": "processAutoHeight",
     "scrollPosition.top": "setScrollTop",
-    "scrollPosition.left": "setScrollLeft"
+    "scrollPosition.left": "setScrollLeft",
+    "rowWatchers": function(val) {
+      console.log(val);
+      if (val.height == null) {
+        val.height = {
+          vm: this,
+          prop: "rowHeight"
+        };
+      }
+      return val;
+    }
   }
 };
 
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<div v-bind:style=\"{height:height+'px'}\" v-bind:class=\"{'scroll-bar-x':scrollBars.x, 'scroll-bar-y':scrollBars.y, 'auto-height':autoHeight, 'loading':state.loading, 'not-started':!state.started}\" @mouseenter=onHover @mouseleave=onHover @scroll=onScroll class=clusterize><div v-el:first-row=v-el:first-row v-bind:style=\"{height:firstRowHeight+'px'}\" class=clusterize-first-row></div><clusterize-cluster v-bind:row-height=rowHeight v-bind:binding-name=bindingName><slot name=loading></slot></clusterize-cluster><clusterize-cluster v-bind:row-height=rowHeight v-bind:binding-name=bindingName><slot name=loading></slot></clusterize-cluster><clusterize-cluster v-bind:row-height=rowHeight v-bind:binding-name=bindingName><slot name=loading></slot></clusterize-cluster><div v-el:last-row=v-el:last-row v-bind:style=\"{height:lastRowHeight+'px'}\" class=clusterize-last-row></div><div style=\"display: none\"><slot></slot></div></div>"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<div v-bind:style=\"{height:height+'px'}\" v-bind:class=\"{'scroll-bar-x':scrollBars.x, 'scroll-bar-y':scrollBars.y, 'auto-height':autoHeight, 'loading':state.loading, 'not-started':!state.started}\" @mouseenter=onHover @mouseleave=onHover @scroll=onScroll class=clusterize><div v-el:first-row=v-el:first-row v-bind:style=\"{height:firstRowHeight+'px'}\" class=clusterize-first-row></div><clusterize-cluster v-bind:binding-name=bindingName v-bind:row-watchers=rowWatchers v-bind:parent-vm=parentVm><slot name=loading></slot></clusterize-cluster><clusterize-cluster v-bind:binding-name=bindingName v-bind:row-watchers=rowWatchers v-bind:parent-vm=parentVm><slot name=loading></slot></clusterize-cluster><clusterize-cluster v-bind:binding-name=bindingName v-bind:row-watchers=rowWatchers v-bind:parent-vm=parentVm><slot name=loading></slot></clusterize-cluster><div v-el:last-row=v-el:last-row v-bind:style=\"{height:lastRowHeight+'px'}\" class=clusterize-last-row></div><div v-if=false><slot></slot></div></div>"

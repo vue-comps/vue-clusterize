@@ -8,14 +8,14 @@
   @scroll="onScroll"
   )
   .clusterize-first-row(v-el:first-row v-bind:style="{height:firstRowHeight+'px'}")
-  clusterize-cluster(v-bind:row-height="rowHeight" v-bind:binding-name="bindingName")
+  clusterize-cluster(v-bind:binding-name="bindingName" v-bind:row-watchers="rowWatchers" v-bind:parent-vm="parentVm")
     slot(name="loading")
-  clusterize-cluster(v-bind:row-height="rowHeight" v-bind:binding-name="bindingName")
+  clusterize-cluster(v-bind:binding-name="bindingName" v-bind:row-watchers="rowWatchers" v-bind:parent-vm="parentVm")
     slot(name="loading")
-  clusterize-cluster(v-bind:row-height="rowHeight" v-bind:binding-name="bindingName" )
+  clusterize-cluster(v-bind:binding-name="bindingName" v-bind:row-watchers="rowWatchers" v-bind:parent-vm="parentVm")
     slot(name="loading")
   .clusterize-last-row(v-el:last-row v-bind:style="{height:lastRowHeight+'px'}")
-  div(style="display: none;")
+  div(v-if="false")
     slot
 </template>
 
@@ -54,11 +54,16 @@ module.exports =
     "clusterSizeFac":
       type: Number
       default: 1.5
+    "template":
+      type: String
+    "rowWatchers":
+      type: Object
+      default: -> {height: {vm: @, prop:"rowHeight"}}
+    "parentVm":
+      type: Object
+      default: -> @$parent
 
   data: ->
-    state:
-      started: false
-      loading: false
     clusters: []
     rowObj: null
     firstRowHeight: null
@@ -75,6 +80,11 @@ module.exports =
     offsetHeight: 0
     minHeight: null
     disposeResizeCb: null
+
+    state:
+      started: false
+      loading: false
+
     scrollBarSize:
       height: 0
       width: 0
@@ -255,24 +265,34 @@ module.exports =
     redraw: ->
       @processClusterChange(@$el.scrollTop,true)
 
+    updateTemplate: ->
+      factory = new Vue.FragmentFactory @parentVm, @template
+      for cluster in @clusters
+        cluster.factory = factory
+
   compiled: ->
     for child in @$children
       if child.isCluster
         @clusters.push child
       if child.isRow
         @rowObj = child
-    throw new Error "no clusterize-row was found" unless @rowObj?
-    frag = @rowObj.$options.template
-    frag = frag.replace(/<\/div>$/,@rowObj.$options._content.innerHTML+"</div>")
-    factory = new Vue.FragmentFactory @$parent, frag
-    for cluster in @clusters
-      cluster.factory = factory
+    if @rowObj
+      frag = @rowObj.$options.template
+      frag = frag.replace(/<\/div>$/,@rowObj.$options._content.innerHTML+"</div>")
+      factory = new Vue.FragmentFactory @parentVm, frag
+      for cluster in @clusters
+        cluster.factory = factory
 
   watch:
+    "template": "updateTemplate"
     "height" : "updateHeight"
     "autoHeight": "processAutoHeight"
     "scrollPosition.top": "setScrollTop"
     "scrollPosition.left": "setScrollLeft"
+    "rowWatchers": (val) ->
+      console.log val
+      val.height = {vm: @, prop:"rowHeight"} unless val.height?
+      return val
 </script>
 <style lang="stylus">
 .clusterize
