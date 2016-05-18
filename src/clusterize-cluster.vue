@@ -32,8 +32,8 @@ module.exports =
     end: null
     frags: []
   compiled: ->
-    if @$root.construtor?
-      @Vue = @$root.construtor
+    if @$root.constructor?
+      @Vue = @$root.constructor
     else
       @Vue = Object.getPrototypeOf(Object.getPrototypeOf(@$root)).constructor
     @end = @Vue.util.createAnchor('clusterize-cluster-end')
