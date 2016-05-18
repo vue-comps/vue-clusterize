@@ -1,3 +1,5 @@
+# broke since Vue 1.0.24
+
 # vue-clusterize
 
 An implementation of [Clusterize.js](https://nexts.github.io/Clusterize.js/) in [vue](http://vuejs.org/).
