@@ -5,7 +5,7 @@ An implementation of [Clusterize.js](https://nexts.github.io/Clusterize.js/) in 
 Works similar to `v-for` but only takes enough data to fill the viewport  3 times.  
 This data is then splitted into three clusters which will move and get filled with the right data on scrolling.
 
-### [See it in action](https://paulpflug.github.io/vue-clusterize)
+### [See it in action](https://vue-comps.github.io/vue-clusterize/)
 
 # Disclaimer
 
