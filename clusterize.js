@@ -388,7 +388,6 @@ module.exports = {
     }
   },
   watch: {
-    "template": "updateTemplate",
     "height": "updateHeight",
     "scrollPosition.top": "setScrollTop",
     "scrollPosition.left": "setScrollLeft",

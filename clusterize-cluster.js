@@ -51,7 +51,7 @@ module.exports = {
   },
   methods: {
     createFrag: function(i) {
-      var frag, parentScope, scope;
+      var frag, key, parentScope, ref, scope, val;
       parentScope = this.parentVm;
       scope = Object.create(parentScope);
       scope.$refs = Object.create(parentScope.$refs);
@@ -59,17 +59,13 @@ module.exports = {
       scope.$parent = parentScope;
       scope.$forContext = this;
       this.Vue.util.defineReactive(scope, this.bindingName, this.data[i]);
-<<<<<<< HEAD
-      this.Vue.util.defineReactive(scope, "height", this.rowHeight);
       this.Vue.util.defineReactive(scope, "loading", this.loading);
-=======
       ref = this.rowWatchers;
       for (key in ref) {
         val = ref[key];
         this.Vue.util.defineReactive(scope, key, val.vm[val.prop]);
         scope[key] = val.vm[val.prop];
       }
->>>>>>> new-version
       frag = this.factory.create(this, scope, this.$options._frag);
       frag.before(this.end);
       return this.frags[i] = frag;
