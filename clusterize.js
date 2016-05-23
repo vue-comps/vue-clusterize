@@ -1,6 +1,5 @@
-var __vueify_style__ = require("vueify-insert-css").insert(".clusterize{overflow:hidden}.clusterize.scroll-bar-x:hover{overflow-x:auto}.clusterize.scroll-bar-y:hover{overflow-y:auto}.clusterize.auto-height{position:absolute;top:0;bottom:0;left:0;right:0}.clusterize.loading>.clusterize-cluster{visibility:hidden}")
 module.exports = {
-  mixins: [require("vue-mixins/onElementResize"), require("vue-mixins/getVue")],
+  mixins: [require("vue-mixins/onElementResize"), require("vue-mixins/vue")],
   components: {
     "clusterize-cluster": require("./clusterize-cluster")
   },
@@ -44,14 +43,57 @@ module.exports = {
     "clusterSizeFac": {
       type: Number,
       "default": 1.5
+    },
+    "template": {
+      type: String
+    },
+    "rowWatchers": {
+      type: Object,
+      "default": function() {
+        return {
+          height: {
+            vm: this,
+            prop: "rowHeight"
+          }
+        };
+      }
+    },
+    "parentVm": {
+      type: Object,
+      "default": function() {
+        return this.$parent;
+      }
+    }
+  },
+  computed: {
+    overflowX: function() {
+      if (this.scrollBars.x) {
+        return "auto";
+      }
+      return null;
+    },
+    overflowY: function() {
+      if (this.scrollBars.y) {
+        return "auto";
+      }
+      return null;
+    },
+    position: function() {
+      if (this.autoHeight) {
+        if (this.disposeResizeCb == null) {
+          this.disposeResizeCb = this.onElementResize(this.$el, this.updateHeight);
+        }
+        return "absolute";
+      } else {
+        if (typeof this.disposeResizeCb === "function") {
+          this.disposeResizeCb();
+        }
+        return null;
+      }
     }
   },
   data: function() {
     return {
-      state: {
-        started: false,
-        loading: false
-      },
       clusters: [],
       rowObj: null,
       firstRowHeight: null,
@@ -67,7 +109,10 @@ module.exports = {
       clusterVisibleLast: -1,
       offsetHeight: 0,
       minHeight: null,
-      disposeResizeCb: null,
+      state: {
+        started: false,
+        loading: false
+      },
       scrollBarSize: {
         height: 0,
         width: 0
@@ -75,21 +120,33 @@ module.exports = {
     };
   },
   ready: function() {
-    if (this.autoStart) {
-      this.start();
+    var child, cluster, factory, frag, i, j, len, len1, ref, ref1;
+    ref = this.$children;
+    for (i = 0, len = ref.length; i < len; i++) {
+      child = ref[i];
+      if (child.isCluster) {
+        this.clusters.push(child);
+      }
+      if (child.isRow) {
+        this.rowObj = child;
+      }
     }
-    return this.processAutoHeight();
+    if (this.rowObj == null) {
+      throw new Error("no clusterize-row was found");
+    }
+    frag = this.rowObj.$options.template;
+    frag = frag.replace(/<\/div>$/, this._slotContents["default"].textContent + "</div>");
+    factory = new this.Vue.FragmentFactory(this.$parent, frag);
+    ref1 = this.clusters;
+    for (j = 0, len1 = ref1.length; j < len1; j++) {
+      cluster = ref1[j];
+      cluster.factory = factory;
+    }
+    if (this.autoStart) {
+      return this.start();
+    }
   },
   methods: {
-    processAutoHeight: function() {
-      if (this.autoHeight) {
-        if (this.disposeResizeCb == null) {
-          return this.disposeResizeCb = this.onElementResize(this.$el, this.updateHeight);
-        }
-      } else {
-        return typeof this.disposeResizeCb === "function" ? this.disposeResizeCb() : void 0;
-      }
-    },
     updateHeight: function() {
       if (this.rowHeight > -1 && Math.abs(this.offsetHeight - this.$el.offsetHeight) / this.clusterHeight * this.clusterSizeFac > 0.2) {
         this.calcClusterSize();
@@ -119,7 +176,7 @@ module.exports = {
       if (this.data != null) {
         return cb(this.data.slice(first, +last + 1 || 9e9));
       } else {
-        return this.$dispatch("get-data", first, last, cb);
+        return this.$emit("get-data", first, last, cb);
       }
     },
     getAndProcessDataCount: function() {
@@ -129,7 +186,7 @@ module.exports = {
           if (_this.data != null) {
             return cb(_this.data.length);
           } else {
-            return _this.$dispatch("get-data-count", cb);
+            return _this.$emit("get-data-count", cb);
           }
         };
       })(this);
@@ -148,14 +205,12 @@ module.exports = {
       this.clusters[0].data = [dataSet];
       return this.$nextTick((function(_this) {
         return function() {
-          return _this.$nextTick(function() {
-            _this.rowHeight = _this.clusters[0].$el.offsetHeight;
-            if (_this.rowHeight === 0) {
-              throw new Error("height of row is 0");
-            }
-            _this.calcClusterSize();
-            return cb();
-          });
+          _this.rowHeight = _this.clusters[0].$el.offsetHeight;
+          if (_this.rowHeight === 0) {
+            throw new Error("height of row is 0");
+          }
+          _this.calcClusterSize();
+          return cb();
         };
       })(this));
     },
@@ -244,11 +299,11 @@ module.exports = {
       var loading;
       if (this.state.loading) {
         this.state.loading = false;
-        this.$dispatch("clusterize-loaded");
+        this.$emit("clusterize-loaded");
       }
       cluster.loading += 1;
       loading = cluster.loading;
-      this.$dispatch("cluster-loading", cluster.nr);
+      this.$emit("cluster-loading", cluster.nr);
       return this.getData(first, last, (function(_this) {
         return function(data) {
           if (cluster.loading === loading) {
@@ -259,7 +314,7 @@ module.exports = {
             }
             cluster.data = data;
             cluster.loading = 0;
-            return _this.$dispatch("cluster-loaded", cluster.nr);
+            return _this.$emit("cluster-loaded", cluster.nr);
           }
         };
       })(this));
@@ -323,39 +378,23 @@ module.exports = {
       return this.processClusterChange(this.$el.scrollTop, true);
     }
   },
-  compiled: function() {
-    var child, cluster, factory, frag, i, j, len, len1, ref, ref1, results;
-    ref = this.$children;
-    for (i = 0, len = ref.length; i < len; i++) {
-      child = ref[i];
-      if (child.isCluster) {
-        this.clusters.push(child);
-      }
-      if (child.isRow) {
-        this.rowObj = child;
-      }
-    }
-    if (this.rowObj == null) {
-      throw new Error("no clusterize-row was found");
-    }
-    frag = this.rowObj.$options.template;
-    frag = frag.replace(/<\/div>$/, this.rowObj.$options._content.innerHTML + "</div>");
-    factory = new this.getVue().FragmentFactory(this.$parent, frag);
-    ref1 = this.clusters;
-    results = [];
-    for (j = 0, len1 = ref1.length; j < len1; j++) {
-      cluster = ref1[j];
-      results.push(cluster.factory = factory);
-    }
-    return results;
-  },
   watch: {
+    "template": "updateTemplate",
     "height": "updateHeight",
-    "autoHeight": "processAutoHeight",
     "scrollPosition.top": "setScrollTop",
-    "scrollPosition.left": "setScrollLeft"
+    "scrollPosition.left": "setScrollLeft",
+    "rowWatchers": function(val) {
+      console.log(val);
+      if (val.height == null) {
+        val.height = {
+          vm: this,
+          prop: "rowHeight"
+        };
+      }
+      return val;
+    }
   }
 };
 
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<div v-bind:style=\"{height:height+'px'}\" v-bind:class=\"{'scroll-bar-x':scrollBars.x, 'scroll-bar-y':scrollBars.y, 'auto-height':autoHeight, 'loading':state.loading, 'not-started':!state.started}\" @mouseenter=onHover @mouseleave=onHover @scroll=onScroll class=clusterize><div v-el:first-row=v-el:first-row v-bind:style=\"{height:firstRowHeight+'px'}\" class=clusterize-first-row></div><clusterize-cluster v-bind:row-height=rowHeight v-bind:binding-name=bindingName><slot name=loading></slot></clusterize-cluster><clusterize-cluster v-bind:row-height=rowHeight v-bind:binding-name=bindingName><slot name=loading></slot></clusterize-cluster><clusterize-cluster v-bind:row-height=rowHeight v-bind:binding-name=bindingName><slot name=loading></slot></clusterize-cluster><div v-el:last-row=v-el:last-row v-bind:style=\"{height:lastRowHeight+'px'}\" class=clusterize-last-row></div><div style=\"display: none\"><slot></slot></div></div>"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<div :style=\"{height:height+'px',overflow:'hidden',overflowX:overflowX,overflowY:overflowY,position:position,top:autoHeight?0:null,bottom:autoHeight?0:null}\" :class=\"{'loading':state.loading, 'not-started':!state.started}\" @mouseenter=onHover @mouseleave=onHover @scroll=onScroll class=clusterize><div v-el:first-row=v-el:first-row v-bind:style=\"{height:firstRowHeight+'px'}\" class=clusterize-first-row></div><clusterize-cluster v-bind:binding-name=bindingName v-bind:row-watchers=rowWatchers v-bind:parent-vm=parentVm><slot name=loading></slot></clusterize-cluster><clusterize-cluster v-bind:binding-name=bindingName v-bind:row-watchers=rowWatchers v-bind:parent-vm=parentVm><slot name=loading></slot></clusterize-cluster><clusterize-cluster v-bind:binding-name=bindingName v-bind:row-watchers=rowWatchers v-bind:parent-vm=parentVm><slot name=loading></slot></clusterize-cluster><div v-el:last-row=v-el:last-row v-bind:style=\"{height:lastRowHeight+'px'}\" class=clusterize-last-row></div><div style=\"visibility: hidden; position:absolute\"><slot></slot></div></div>"

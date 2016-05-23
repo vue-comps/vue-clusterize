@@ -1,4 +1,3 @@
-var __vueify_style__ = require("vueify-insert-css").insert("div.clusterize-row{overflow:visible}")
 module.exports = {
   props: {
     "height": {
@@ -6,6 +5,10 @@ module.exports = {
     },
     "data": {
       "default": null
+    },
+    "loading": {
+      type: Number,
+      "default": 0
     }
   },
   data: function() {
@@ -19,4 +22,4 @@ module.exports = {
 };
 
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<div v-bind:style=\"{height:height+'px'}\" v-show=\"data != null\" class=clusterize-row></div>"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<div v-bind:style=\"{height:height+'px',overflow:'visible',display:loading?'none':null}\" class=clusterize-row></div>"

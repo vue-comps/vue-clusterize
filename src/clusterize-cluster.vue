@@ -13,9 +13,11 @@
 
 <script lang="coffee">
 module.exports =
+
   mixins: [
     require("vue-mixins/vue")
   ]
+
   props:
     "bindingName":
       type: String
@@ -25,25 +27,32 @@ module.exports =
       default: 0
     "nr":
       type: Number
-    "rowHeight":
-      type: Number
     "height":
       type: Number
     "data":
       type: Array
       default: -> []
+    "rowWatchers":
+      type: Object
+    "parentVm":
+      type: Object
+
   data: ->
     isCluster: true
     factory: null
     Vue: null
     end: null
     frags: []
+
   ready: ->
     @end = @Vue.util.createAnchor('clusterize-cluster-end')
     @$el.appendChild(@end)
+    for key,val of @rowWatchers
+      @initRowWatchers(key,val)
+
   methods:
     createFrag: (i) ->
-      parentScope = @$parent.$parent
+      parentScope = @parentVm
       scope = Object.create(parentScope)
       scope.$refs = Object.create(parentScope.$refs)
       scope.$els = Object.create(parentScope.$els)
@@ -57,7 +66,18 @@ module.exports =
       @frags[i] = frag
     destroyFrag: (i) ->
       @frags[i].remove()
+    initRowWatchers: (key,obj) ->
+      self = @
+      obj.vm.$watch obj.prop, (val) ->
+        for frag in self.frags
+          frag.scope[key] = val
+    redraw: ->
+      if @frags.length > 0
+        for i in [0...@frags.length]
+          @destroyFrag(i)
+          @createFrag(i)
   watch:
+    "factory": "redraw"
     data: (newData, oldData)->
       diff = newData.length-oldData.length
       if diff > 0

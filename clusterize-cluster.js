@@ -1,6 +1,5 @@
-var __vueify_style__ = require("vueify-insert-css").insert("div.clusterize-cluster{overflow:visible;margin:0;padding:0;position:relative}.clusterize-cluster.loading>.clusterize-row{display:none}")
 module.exports = {
-  mixins: [require("vue-mixins/getVue")],
+  mixins: [require("vue-mixins/vue")],
   props: {
     "bindingName": {
       type: String,
@@ -13,9 +12,6 @@ module.exports = {
     "nr": {
       type: Number
     },
-    "rowHeight": {
-      type: Number
-    },
     "height": {
       type: Number
     },
@@ -24,6 +20,12 @@ module.exports = {
       "default": function() {
         return [];
       }
+    },
+    "rowWatchers": {
+      type: Object
+    },
+    "parentVm": {
+      type: Object
     }
   },
   data: function() {
@@ -36,13 +38,21 @@ module.exports = {
     };
   },
   ready: function() {
-    this.end = this.getVue().util.createAnchor('clusterize-cluster-end');
-    return this.$el.appendChild(this.end);
+    var key, ref, results, val;
+    this.end = this.Vue.util.createAnchor('clusterize-cluster-end');
+    this.$el.appendChild(this.end);
+    ref = this.rowWatchers;
+    results = [];
+    for (key in ref) {
+      val = ref[key];
+      results.push(this.initRowWatchers(key, val));
+    }
+    return results;
   },
   methods: {
     createFrag: function(i) {
       var frag, parentScope, scope;
-      parentScope = this.$parent.$parent;
+      parentScope = this.parentVm;
       scope = Object.create(parentScope);
       scope.$refs = Object.create(parentScope.$refs);
       scope.$els = Object.create(parentScope.$els);
@@ -50,15 +60,42 @@ module.exports = {
       scope.$forContext = this;
       this.Vue.util.defineReactive(scope, this.bindingName, this.data[i]);
       this.Vue.util.defineReactive(scope, "height", this.rowHeight);
+      this.Vue.util.defineReactive(scope, "loading", this.loading);
       frag = this.factory.create(this, scope, this.$options._frag);
       frag.before(this.end);
       return this.frags[i] = frag;
     },
     destroyFrag: function(i) {
       return this.frags[i].remove();
+    },
+    initRowWatchers: function(key, obj) {
+      var self;
+      self = this;
+      return obj.vm.$watch(obj.prop, function(val) {
+        var frag, j, len, ref, results;
+        ref = self.frags;
+        results = [];
+        for (j = 0, len = ref.length; j < len; j++) {
+          frag = ref[j];
+          results.push(frag.scope[key] = val);
+        }
+        return results;
+      });
+    },
+    redraw: function() {
+      var i, j, ref, results;
+      if (this.frags.length > 0) {
+        results = [];
+        for (i = j = 0, ref = this.frags.length; 0 <= ref ? j < ref : j > ref; i = 0 <= ref ? ++j : --j) {
+          this.destroyFrag(i);
+          results.push(this.createFrag(i));
+        }
+        return results;
+      }
     }
   },
   watch: {
+    "factory": "redraw",
     data: function(newData, oldData) {
       var diff, frag, i, index, j, k, l, len, ref, ref1, ref2, results;
       diff = newData.length - oldData.length;
@@ -88,9 +125,19 @@ module.exports = {
         results.push(frag.scope.height = newHeight);
       }
       return results;
+    },
+    loading: function(newLoading) {
+      var frag, j, len, ref, results;
+      ref = this.frags;
+      results = [];
+      for (j = 0, len = ref.length; j < len; j++) {
+        frag = ref[j];
+        results.push(frag.scope.loading = newLoading);
+      }
+      return results;
     }
   }
 };
 
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<div v-bind:class={loading:loading} v-bind:style=\"{height:height+'px'}\" class=clusterize-cluster><div v-el:loading=v-el:loading v-show=loading class=clusterize-cluster-loading><slot>loading...</slot></div></div>"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<div :class={loading:loading} :style=\"{height:height+'px',overflow:'visible',position:'relative',margin:0,padding:0}\" class=clusterize-cluster><div v-el:loading=v-el:loading v-show=loading class=clusterize-cluster-loading><slot>loading...</slot></div></div>"

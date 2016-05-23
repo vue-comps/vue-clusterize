@@ -23,6 +23,7 @@ Without css, only `webpack` is needed.
 ```sh
 npm install --save-dev webpack
 ```
+use version 0.2.0 before vue `1.0.24`
 
 ## Usage
 ```coffee
