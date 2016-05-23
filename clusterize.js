@@ -44,6 +44,10 @@ module.exports = {
       type: Number,
       "default": 1.5
     },
+    "rowHeight": {
+      type: Number,
+      "default": -1
+    },
     "template": {
       type: String
     },
@@ -99,7 +103,6 @@ module.exports = {
       firstRowHeight: null,
       lastRowHeight: null,
       rowCount: null,
-      rowHeight: -1,
       rowsCount: null,
       clustersCount: null,
       clusterHeight: null,
@@ -165,10 +168,16 @@ module.exports = {
       return this.getData(0, 0, (function(_this) {
         return function(data) {
           _this.getAndProcessDataCount();
-          return _this.calcRowHeight(data[0], function() {
+          if (_this.rowHeight === -1) {
+            return _this.calcRowHeight(data[0], function() {
+              _this.processScroll(top);
+              return _this.onHover();
+            });
+          } else {
+            _this.calcClusterSize();
             _this.processScroll(top);
             return _this.onHover();
-          });
+          }
         };
       })(this));
     },
@@ -384,7 +393,6 @@ module.exports = {
     "scrollPosition.top": "setScrollTop",
     "scrollPosition.left": "setScrollLeft",
     "rowWatchers": function(val) {
-      console.log(val);
       if (val.height == null) {
         val.height = {
           vm: this,

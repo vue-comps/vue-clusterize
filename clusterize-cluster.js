@@ -59,8 +59,17 @@ module.exports = {
       scope.$parent = parentScope;
       scope.$forContext = this;
       this.Vue.util.defineReactive(scope, this.bindingName, this.data[i]);
+<<<<<<< HEAD
       this.Vue.util.defineReactive(scope, "height", this.rowHeight);
       this.Vue.util.defineReactive(scope, "loading", this.loading);
+=======
+      ref = this.rowWatchers;
+      for (key in ref) {
+        val = ref[key];
+        this.Vue.util.defineReactive(scope, key, val.vm[val.prop]);
+        scope[key] = val.vm[val.prop];
+      }
+>>>>>>> new-version
       frag = this.factory.create(this, scope, this.$options._frag);
       frag.before(this.end);
       return this.frags[i] = frag;
@@ -96,6 +105,19 @@ module.exports = {
   },
   watch: {
     "factory": "redraw",
+    "rowWatchers": function(newRW, oldRW) {
+      var key, results, val;
+      results = [];
+      for (key in newRW) {
+        val = newRW[key];
+        if (oldRW[key] == null) {
+          results.push(this.initRowWatchers(key, val));
+        } else {
+          results.push(void 0);
+        }
+      }
+      return results;
+    },
     data: function(newData, oldData) {
       var diff, frag, i, index, j, k, l, len, ref, ref1, ref2, results;
       diff = newData.length - oldData.length;

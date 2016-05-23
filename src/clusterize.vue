@@ -53,6 +53,9 @@ module.exports =
     "clusterSizeFac":
       type: Number
       default: 1.5
+    "rowHeight":
+      type: Number
+      default: -1
     "template":
       type: String
     "rowWatchers":
@@ -83,7 +86,6 @@ module.exports =
     firstRowHeight: null
     lastRowHeight: null
     rowCount: null
-    rowHeight: -1
     rowsCount: null
     clustersCount: null
     clusterHeight: null
@@ -129,9 +131,15 @@ module.exports =
         @$watch("data", @processData) # watch data only if static
       @getData 0,0, (data) =>
         @getAndProcessDataCount()
-        @calcRowHeight data[0], =>
+        if @rowHeight == -1
+          @calcRowHeight data[0], =>
+            @processScroll(top)
+            @onHover()
+        else
+          @calcClusterSize()
           @processScroll(top)
           @onHover()
+
 
     getData: (first,last,cb) ->
       if @data?
@@ -285,7 +293,6 @@ module.exports =
     "scrollPosition.top": "setScrollTop"
     "scrollPosition.left": "setScrollLeft"
     "rowWatchers": (val) ->
-      console.log val
       val.height = {vm: @, prop:"rowHeight"} unless val.height?
       return val
 </script>

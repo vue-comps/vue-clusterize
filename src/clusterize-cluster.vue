@@ -59,8 +59,10 @@ module.exports =
       scope.$parent = parentScope
       scope.$forContext = @
       @Vue.util.defineReactive(scope,@bindingName,@data[i])
-      @Vue.util.defineReactive(scope,"height",@rowHeight)
       @Vue.util.defineReactive(scope,"loading",@loading)
+      for key,val of @rowWatchers
+        @Vue.util.defineReactive(scope,key,val.vm[val.prop])
+        scope[key] = val.vm[val.prop]
       frag = @factory.create(@, scope, @$options._frag)
       frag.before(@end)
       @frags[i] = frag
@@ -71,6 +73,7 @@ module.exports =
       obj.vm.$watch obj.prop, (val) ->
         for frag in self.frags
           frag.scope[key] = val
+
     redraw: ->
       if @frags.length > 0
         for i in [0...@frags.length]
@@ -78,6 +81,10 @@ module.exports =
           @createFrag(i)
   watch:
     "factory": "redraw"
+    "rowWatchers": (newRW,oldRW) ->
+      for key,val of newRW
+        unless oldRW[key]?
+          @initRowWatchers(key,val)
     data: (newData, oldData)->
       diff = newData.length-oldData.length
       if diff > 0
