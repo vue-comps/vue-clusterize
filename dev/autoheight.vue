@@ -1,4 +1,4 @@
-<template lang="jade">
+<template lang="pug">
 .container
   a(href="https://vue-comps.github.io/vue-clusterize/blob/master/dev/autoheight.vue") source
   p resize the window

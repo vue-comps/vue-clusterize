@@ -1,5 +1,5 @@
 // out: ..
-<template lang="jade">
+<template lang="pug">
 .clusterize(
   :style="{height:height+'px',overflow:'hidden',overflowX:overflowX,overflowY:overflowY,position:position,top:autoHeight?0:null,bottom:autoHeight?0:null}",
   :class="{'loading':state.loading, 'not-started':!state.started}",

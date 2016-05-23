@@ -158,4 +158,4 @@ module.exports = {
 };
 
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<div :class={loading:loading} :style=\"{height:height+'px',overflow:'visible',position:'relative',margin:0,padding:0}\" class=clusterize-cluster><div v-el:loading=v-el:loading v-show=loading class=clusterize-cluster-loading><slot>loading...</slot></div></div>"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<div class=clusterize-cluster :class={loading:loading} :style=\"{height:height+'px',overflow:'visible',position:'relative',margin:0,padding:0}\"><div class=clusterize-cluster-loading v-el:loading=v-el:loading v-show=loading><slot>loading...</slot></div></div>"
