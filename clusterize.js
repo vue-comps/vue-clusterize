@@ -1,10 +1,6 @@
 var __vueify_style__ = require("vueify-insert-css").insert(".clusterize{overflow:hidden}.clusterize.scroll-bar-x:hover{overflow-x:auto}.clusterize.scroll-bar-y:hover{overflow-y:auto}.clusterize.auto-height{position:absolute;top:0;bottom:0;left:0;right:0}.clusterize.loading>.clusterize-cluster{visibility:hidden}")
-var Vue;
-
-Vue = require("vue");
-
 module.exports = {
-  mixins: [require("vue-mixins/onElementResize")],
+  mixins: [require("vue-mixins/onElementResize"), require("vue-mixins/getVue")],
   components: {
     "clusterize-cluster": require("./clusterize-cluster")
   },
@@ -344,7 +340,7 @@ module.exports = {
     }
     frag = this.rowObj.$options.template;
     frag = frag.replace(/<\/div>$/, this.rowObj.$options._content.innerHTML + "</div>");
-    factory = new Vue.FragmentFactory(this.$parent, frag);
+    factory = new this.getVue().FragmentFactory(this.$parent, frag);
     ref1 = this.clusters;
     results = [];
     for (j = 0, len1 = ref1.length; j < len1; j++) {

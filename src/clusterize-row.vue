@@ -1,21 +1,22 @@
 // out: ..
 <template lang="jade">
-.clusterize-row(v-bind:style="{height:height+'px'}" v-show="data != null")
+.clusterize-row(v-bind:style="{height:height+'px',overflow:'visible',display:loading?'none':null}")
 </template>
 
 <script lang="coffee">
 module.exports =
+
   props:
     "height":
       type: Number
     "data":
       default: null
+    "loading":
+      type: Number
+      default: 0
+
   data: ->
     isRow: true
-  el: -> document.createElement "div"
 
+  el: -> document.createElement "div"
 </script>
-<style lang="stylus">
-div.clusterize-row
-  overflow visible
-</style>

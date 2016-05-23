@@ -1,6 +1,6 @@
 <template lang="jade">
 .container
-  a(href="https://github.com/paulpflug/vue-clusterize/blob/master/dev/loading.vue") source
+  a(href="https://vue-comps.github.io/vue-clusterize/blob/master/dev/loading.vue") source
   p 0.5 sec delay for data
   clusterize(v-ref:clusterize @get-data="getData" @get-data-count="getDataCount" v-bind:height="400" style="width:200px")
     clusterize-row
@@ -11,8 +11,8 @@
 <script lang="coffee">
 module.exports =
   components:
-    "clusterize": require "../clusterize.js"
-    "clusterize-row": require "../clusterize-row.js"
+    "clusterize": require "../src/clusterize.vue"
+    "clusterize-row": require "../src/clusterize-row.vue"
   data: ->
     rowsData: (x for x in [1..10000])
   methods:

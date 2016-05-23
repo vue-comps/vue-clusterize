@@ -1,10 +1,10 @@
 // out: ..
 <template lang="jade">
 .clusterize(
-  v-bind:style="{height:height+'px'}"
-  v-bind:class="{'scroll-bar-x':scrollBars.x, 'scroll-bar-y':scrollBars.y, 'auto-height':autoHeight, 'loading':state.loading, 'not-started':!state.started}"
-  @mouseenter="onHover"
-  @mouseleave="onHover"
+  :style="{height:height+'px',overflow:'hidden',overflowX:overflowX,overflowY:overflowY,position:position,top:autoHeight?0:null,bottom:autoHeight?0:null}",
+  :class="{'loading':state.loading, 'not-started':!state.started}",
+  @mouseenter="onHover",
+  @mouseleave="onHover",
   @scroll="onScroll"
   )
   .clusterize-first-row(v-el:first-row v-bind:style="{height:firstRowHeight+'px'}")
@@ -15,17 +15,16 @@
   clusterize-cluster(v-bind:row-height="rowHeight" v-bind:binding-name="bindingName" )
     slot(name="loading")
   .clusterize-last-row(v-el:last-row v-bind:style="{height:lastRowHeight+'px'}")
-  div(style="display: none;")
+  div(style="visibility: hidden; position:absolute;")
     slot
 </template>
 
 <script lang="coffee">
-Vue = require "vue"
-
 module.exports =
 
   mixins: [
     require "vue-mixins/onElementResize"
+    require "vue-mixins/vue"
   ]
 
   components:
@@ -55,6 +54,21 @@ module.exports =
       type: Number
       default: 1.5
 
+  computed:
+    overflowX: ->
+      return "auto" if @scrollBars.x
+      return null
+    overflowY: ->
+      return "auto" if @scrollBars.y
+      return null
+    position: ->
+      if @autoHeight
+        @disposeResizeCb = @onElementResize @$el, @updateHeight unless @disposeResizeCb?
+        return "absolute"
+      else
+        @disposeResizeCb?()
+        return null
+
   data: ->
     state:
       started: false
@@ -74,23 +88,26 @@ module.exports =
     clusterVisibleLast: -1
     offsetHeight: 0
     minHeight: null
-    disposeResizeCb: null
     scrollBarSize:
       height: 0
       width: 0
 
   ready: ->
+    for child in @$children
+      if child.isCluster
+        @clusters.push child
+      if child.isRow
+        @rowObj = child
+    throw new Error "no clusterize-row was found" unless @rowObj?
+    frag = @rowObj.$options.template
+    frag = frag.replace(/<\/div>$/,@_slotContents.default.textContent+"</div>")
+    factory = new @Vue.FragmentFactory @$parent, frag
+    for cluster in @clusters
+      cluster.factory = factory
     if @autoStart
       @start()
-    @processAutoHeight()
 
   methods:
-
-    processAutoHeight: ->
-      if @autoHeight
-        @disposeResizeCb = @onElementResize @$el, @updateHeight unless @disposeResizeCb?
-      else
-        @disposeResizeCb?()
 
     updateHeight: ->
       if @rowHeight > -1 and Math.abs(@offsetHeight-@$el.offsetHeight)/@clusterHeight*@clusterSizeFac > 0.2
@@ -112,7 +129,7 @@ module.exports =
       if @data?
         cb(@data[first..last])
       else
-        @$dispatch("get-data",first,last,cb)
+        @$emit("get-data",first,last,cb)
 
 
     getAndProcessDataCount: ->
@@ -120,7 +137,7 @@ module.exports =
         if @data?
           cb(@data.length)
         else
-          @$dispatch("get-data-count",cb)
+          @$emit("get-data-count",cb)
       processDataCount = (count) =>
         if count > 0
           @rowsCount = count
@@ -130,7 +147,7 @@ module.exports =
 
     calcRowHeight: (dataSet,cb) ->
       @clusters[0].data = [dataSet]
-      @$nextTick => @$nextTick =>
+      @$nextTick =>
         @rowHeight = @clusters[0].$el.offsetHeight
         throw new Error "height of row is 0" if @rowHeight == 0
         @calcClusterSize()
@@ -192,10 +209,10 @@ module.exports =
     fillClusterWithData: (cluster,first,last) ->
       if @state.loading
         @state.loading = false
-        @$dispatch "clusterize-loaded"
+        @$emit "clusterize-loaded"
       cluster.loading += 1
       loading = cluster.loading
-      @$dispatch "cluster-loading", cluster.nr
+      @$emit "cluster-loading", cluster.nr
       @getData first, last, (data) =>
         if cluster.loading == loading
           if data.length != @clusterSize
@@ -204,7 +221,7 @@ module.exports =
             cluster.height = @clusterHeight
           cluster.data = data
           cluster.loading = 0
-          @$dispatch "cluster-loaded", cluster.nr
+          @$emit "cluster-loaded", cluster.nr
 
     updateFirstRowHeight: ->
       newHeight = (@clusterVisible-(2-@clustersBelow))*@clusterHeight
@@ -255,38 +272,10 @@ module.exports =
     redraw: ->
       @processClusterChange(@$el.scrollTop,true)
 
-  compiled: ->
-    for child in @$children
-      if child.isCluster
-        @clusters.push child
-      if child.isRow
-        @rowObj = child
-    throw new Error "no clusterize-row was found" unless @rowObj?
-    frag = @rowObj.$options.template
-    frag = frag.replace(/<\/div>$/,@rowObj.$options._content.innerHTML+"</div>")
-    factory = new Vue.FragmentFactory @$parent, frag
-    for cluster in @clusters
-      cluster.factory = factory
+
 
   watch:
     "height" : "updateHeight"
-    "autoHeight": "processAutoHeight"
     "scrollPosition.top": "setScrollTop"
     "scrollPosition.left": "setScrollLeft"
 </script>
-<style lang="stylus">
-.clusterize
-  overflow:hidden
-  &.scroll-bar-x:hover
-    overflow-x: auto
-  &.scroll-bar-y:hover
-    overflow-y: auto
-.clusterize.auto-height
-  position: absolute
-  top 0
-  bottom 0
-  left 0
-  right 0
-.clusterize.loading>.clusterize-cluster
-  visibility hidden
-</style>

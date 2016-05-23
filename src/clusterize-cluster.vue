@@ -1,12 +1,21 @@
 // out: ..
 <template lang="jade">
-.clusterize-cluster(v-bind:class="{loading:loading}" v-bind:style="{height:height+'px'}")
-  .clusterize-cluster-loading(v-el:loading  v-show="loading")
+.clusterize-cluster(
+  :class="{loading:loading}",
+  :style="{height:height+'px',overflow:'visible',position:'relative',margin:0,padding:0}"
+  )
+  .clusterize-cluster-loading(
+    v-el:loading,
+    v-show="loading"
+    )
     slot loading...
 </template>
 
 <script lang="coffee">
 module.exports =
+  mixins: [
+    require("vue-mixins/vue")
+  ]
   props:
     "bindingName":
       type: String
@@ -29,11 +38,7 @@ module.exports =
     Vue: null
     end: null
     frags: []
-  compiled: ->
-    if @$root.constructor?
-      @Vue = @$root.constructor
-    else
-      @Vue = Object.getPrototypeOf(Object.getPrototypeOf(@$root)).constructor
+  ready: ->
     @end = @Vue.util.createAnchor('clusterize-cluster-end')
     @$el.appendChild(@end)
   methods:
@@ -46,6 +51,7 @@ module.exports =
       scope.$forContext = @
       @Vue.util.defineReactive(scope,@bindingName,@data[i])
       @Vue.util.defineReactive(scope,"height",@rowHeight)
+      @Vue.util.defineReactive(scope,"loading",@loading)
       frag = @factory.create(@, scope, @$options._frag)
       frag.before(@end)
       @frags[i] = frag
@@ -65,14 +71,7 @@ module.exports =
     rowHeight: (newHeight)->
       for frag,index in @frags
         frag.scope.height = newHeight
+    loading: (newLoading) ->
+      for frag in @frags
+        frag.scope.loading = newLoading
 </script>
-<style lang="stylus">
-div.clusterize-cluster
-  overflow visible
-  margin 0
-  padding 0
-  position relative
-.clusterize-cluster.loading > .clusterize-row
-  display none
-
-</style>

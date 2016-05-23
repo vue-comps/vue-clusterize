@@ -1,6 +1,6 @@
 <template lang="jade">
 .container
-  a(href="https://github.com/paulpflug/vue-clusterize/blob/master/dev/autoheight.vue") source
+  a(href="https://vue-comps.github.io/vue-clusterize/blob/master/dev/autoheight.vue") source
   p resize the window
   p rows per cluster: {{clusterSize}}
   .scrollcontainer(style="height:80%;position:relative")
@@ -16,8 +16,8 @@ module.exports =
     require "vue-mixins/setCss"
   ]
   components:
-    "clusterize": require "../clusterize.js"
-    "clusterize-row": require "../clusterize-row.js"
+    "clusterize": require "../src/clusterize.vue"
+    "clusterize-row": require "../src/clusterize-row.vue"
   data: ->
     rowsData: (x for x in [1..10000])
     clusterSize: 0

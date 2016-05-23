@@ -26,15 +26,12 @@ describe "clusterize", ->
       clel.should.contain "div.clusterize-first-row"
       clel.should.contain "div.clusterize-last-row"
 
-    it "should have hidden element clusterize-row and slot=loading", ->
-      clel.should.contain "div[style='display: none']>div.clusterize-row"
-      clel.should.contain "div[style='display: none']>p[slot='loading']"
 
     it "should contain three clusters", ->
       clel.querySelectorAll("div.clusterize-cluster").should.have.length(3)
 
-    it "should dispatch event clusterize-loaded", (done) ->
-      env.$once "clusterize-loaded", done
+    it "should emit event clusterize-loaded", (done) ->
+      cl.$once "clusterize-loaded", done
 
 
     describe "after loaded", ->
@@ -63,7 +60,7 @@ describe "clusterize", ->
         it "should have a height", ->
           clsels = clel.querySelectorAll("div.clusterize-cluster")
           for clusterel in clsels
-            clusterel.should.have.attr("style","height: #{cl.clusterSize*cl.rowHeight}px;")
+            clusterel.should.have.attr("style").match(new RegExp("height: #{cl.clusterSize*cl.rowHeight}px;"))
 
         it "should have cl.clusterSize rows", ->
           for clusterel in clsels
@@ -120,10 +117,11 @@ describe "clusterize", ->
         cl.height = 200
         cl.$nextTick ->
           clsels = clel.querySelectorAll("div.clusterize-cluster")
-          clel.querySelector("div.clusterize-last-row").should.have.attr("style","height: #{overallHeight-3*cl.clusterSize*cl.rowHeight}px;")
+          clel.querySelector("div.clusterize-last-row").should.have.attr("style")
+          .match(new RegExp("height: #{overallHeight-3*cl.clusterSize*cl.rowHeight}px;"))
           i = 1
           for clusterel in clsels
-            clusterel.should.have.attr("style","height: #{cl.clusterSize*cl.rowHeight}px;")
+            clusterel.should.have.attr("style").match(new RegExp("height: #{cl.clusterSize*cl.rowHeight}px;"))
             rowels = clusterel.querySelectorAll("div.clusterize-row")
             rowels.should.have.length(cl.clusterSize)
             for row in rowels
@@ -144,19 +142,19 @@ describe "clusterize", ->
       unloadComp(env)
 
     it "should dispatch event clusterize-loaded", (done) ->
-      env.$once "clusterize-loaded", done
+      cl.$once "clusterize-loaded", done
 
     it "should be loading",  ->
       clsels = clel.querySelectorAll("div.clusterize-cluster")
       for clusterel in clsels
         clusterel.should.contain "div.clusterize-cluster-loading>p[slot='loading']"
-        clusterel.should.have.attr("style","height: #{cl.clusterSize*cl.rowHeight}px;")
+        clusterel.should.have.attr("style").match(new RegExp("height: #{cl.clusterSize*cl.rowHeight}px;"))
 
     it "should contain data once loaded", (done) ->
       clsels = clel.querySelectorAll("div.clusterize-cluster")
       j = 0
       cl.$on "cluster-loaded", (nr) ->
-        clel.querySelector("div.clusterize-last-row").should.have.attr("style","height: #{overallHeight-3*cl.clusterSize*cl.rowHeight}px;")
+        clel.querySelector("div.clusterize-last-row").should.have.attr("style").match(new RegExp("height: #{overallHeight-3*cl.clusterSize*cl.rowHeight}px;"))
         env.$nextTick ->
           i = 1+nr*cl.clusterSize
           rowels = clsels[nr].querySelectorAll("div.clusterize-row")

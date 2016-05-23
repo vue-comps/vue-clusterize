@@ -1,5 +1,6 @@
 var __vueify_style__ = require("vueify-insert-css").insert("div.clusterize-cluster{overflow:visible;margin:0;padding:0;position:relative}.clusterize-cluster.loading>.clusterize-row{display:none}")
 module.exports = {
+  mixins: [require("vue-mixins/getVue")],
   props: {
     "bindingName": {
       type: String,
@@ -34,13 +35,8 @@ module.exports = {
       frags: []
     };
   },
-  compiled: function() {
-    if (this.$root.construtor != null) {
-      this.Vue = this.$root.construtor;
-    } else {
-      this.Vue = Object.getPrototypeOf(Object.getPrototypeOf(this.$root)).constructor;
-    }
-    this.end = this.Vue.util.createAnchor('clusterize-cluster-end');
+  ready: function() {
+    this.end = this.getVue().util.createAnchor('clusterize-cluster-end');
     return this.$el.appendChild(this.end);
   },
   methods: {
