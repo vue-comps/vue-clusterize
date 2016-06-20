@@ -134,16 +134,6 @@ module.exports = {
       }
       return results;
     },
-    rowHeight: function(newHeight) {
-      var frag, index, j, len, ref, results;
-      ref = this.frags;
-      results = [];
-      for (index = j = 0, len = ref.length; j < len; index = ++j) {
-        frag = ref[index];
-        results.push(frag.scope.height = newHeight);
-      }
-      return results;
-    },
     loading: function(newLoading) {
       var frag, j, len, ref, results;
       ref = this.frags;

@@ -2,9 +2,8 @@
 .container
   a(href="https://vue-comps.github.io/vue-clusterize/blob/master/dev/loading.vue") source
   p 0.5 sec delay for data
-  clusterize(v-ref:clusterize @get-data="getData" @get-data-count="getDataCount" v-bind:height="400" style="width:200px")
-    clusterize-row
-      {{data}}
+  clusterize(v-ref:clusterize @get-data="getData" @get-data-count="getDataCount" v-bind:height="400" v-bind:style="{width:'200px'}")
+    clusterize-row {{data}}
     p(slot="loading") loading
 </template>
 

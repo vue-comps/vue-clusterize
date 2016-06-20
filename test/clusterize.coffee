@@ -85,7 +85,7 @@ describe "clusterize", ->
     describe "scrolling", ->
 
       it "should scroll up 3/2 clustersize without change",  ->
-        cl.setScrollTop(Math.floor(3/2*cl.clusterHeight-1))
+        cl.scrollTop = Math.floor(3/2*cl.clusterHeight-1)
         clel.querySelector("div.clusterize-first-row").should.have.attr("style","height: 0px;")
         i = 1
         for clusterel in clel.querySelectorAll("div.clusterize-cluster")
@@ -97,7 +97,7 @@ describe "clusterize", ->
       it "should transit at scroll top 918", (done) ->
         cl.$once "cluster-loading", (nr) ->
           nr.should.equal 3
-        cl.setScrollTop(Math.floor(3/2*cl.clusterHeight))
+        cl.scrollTop = Math.floor(3/2*cl.clusterHeight)
         cl.$nextTick ->
           clel.querySelector("div.clusterize-first-row").should.have.attr("style","height: #{cl.clusterSize*cl.rowHeight}px;")
           clel.querySelector("div.clusterize-last-row").should.have.attr("style","height: #{overallHeight-4*cl.clusterSize*cl.rowHeight}px;")
@@ -107,7 +107,7 @@ describe "clusterize", ->
             for row in rowels
               row.should.have.text i+''
               i++
-          cl.setScrollTop(0)
+          cl.scrollTop = 0
           cl.$nextTick done
 
 

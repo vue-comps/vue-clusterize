@@ -1,6 +1,7 @@
 // out: ..
 <template lang="pug">
 .clusterize-row(v-bind:style="{height:height+'px',overflow:'visible',display:loading?'none':null}")
+  slot
 </template>
 
 <script lang="coffee">

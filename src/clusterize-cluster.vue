@@ -95,9 +95,6 @@ module.exports =
           @destroyFrag(oldData.length+i)
       for frag,index in @frags
         frag.scope.data = newData[index]
-    rowHeight: (newHeight)->
-      for frag,index in @frags
-        frag.scope.height = newHeight
     loading: (newLoading) ->
       for frag in @frags
         frag.scope.loading = newLoading

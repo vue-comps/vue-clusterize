@@ -42,11 +42,15 @@ For examples see [`dev/`](https://github.com/vue-comps/vue-clusterize/tree/maste
 | binding-name | String | "data" | name to access the data in your template |
 | height | Number | null | Height of the clusterize element |
 | auto-height | Boolean | false | If autoheight should be used (see below) |
-| scroll-bars | object | {x:true,y:true}| should there be scrollbars on hover |
-| auto-start | Boolean | true | rendering starts on `ready` (otherwise call `start`)|
+| manual-start | Boolean | false | rendering doesn't start on `ready` (call `start` on the component instance instead)|
 | data | Array | [] | static data to render |
-| scroll-position | Object | {left: -1, top: -1} | used to scroll to a specific position |
+| scrollTop | Number | 0 | sets scrollTop |
+| scrollLeft | Number | 0 | sets scrollLeft |
 | cluster-size-fac | Number | 1.5 | determines the cluster size relative to visible size |
+| template | String | - | row template (defaults to slot content) |
+| style | Object | - | to pass trough style (vue object) |
+| rowWatchers | Object | {height: {vm: this, prop:"rowHeight"}} | variables, will be available in template |
+| parentVm | Object | this.$parent | where to resolve components in template |
 
 ## Autoheight
 
@@ -60,7 +64,7 @@ Or use autoheight:
 <html style="height:100%">
   <body style="height:100%">
     <div style="position:relative">
-      <clusterize :data="rowsData" :auto-height="true">
+      <clusterize :data="rowsData" auto-height>
 ```
 In this case clusterize will always fill the nearest parent element with either `position:relative;` or `position:absolute;`
 `updateHeight` will be called automatically, e.g. on window resize.  
@@ -85,7 +89,7 @@ methods:
 ```
 To issue a manual redraw, call `redraw()` on the clusterize instance.
 
-If you want to enforce a scroll-to-top, call `setScrollTop(0)` or use the `scrollPosition` prop.
+If you want to enforce a scroll-to-top use the `scrollTop` prop.
 
 # Development
 Clone repository.

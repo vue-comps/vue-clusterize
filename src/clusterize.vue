@@ -1,10 +1,8 @@
 // out: ..
 <template lang="pug">
 .clusterize(
-  :style="{height:height+'px',overflow:'hidden',overflowX:overflowX,overflowY:overflowY,position:position,top:autoHeight?0:null,bottom:autoHeight?0:null}",
+  :style="computedStyle",
   :class="{'loading':state.loading, 'not-started':!state.started}",
-  @mouseenter="onHover",
-  @mouseleave="onHover",
   @scroll="onScroll"
   )
   .clusterize-first-row(v-el:first-row v-bind:style="{height:firstRowHeight+'px'}")
@@ -15,8 +13,6 @@
   clusterize-cluster(v-bind:binding-name="bindingName" v-bind:row-watchers="rowWatchers" v-bind:parent-vm="parentVm")
     slot(name="loading")
   .clusterize-last-row(v-el:last-row v-bind:style="{height:lastRowHeight+'px'}")
-  div(style="visibility: hidden; position:absolute;")
-    slot
 </template>
 
 <script lang="coffee">
@@ -25,6 +21,7 @@ module.exports =
   mixins: [
     require "vue-mixins/onElementResize"
     require "vue-mixins/vue"
+    require "vue-mixins/fragToString"
   ]
 
   components:
@@ -39,25 +36,24 @@ module.exports =
     "autoHeight":
       type: Boolean
       default: false
-    "scrollBars":
-      type: Object
-      default: -> x:true, y: true
-    "autoStart":
+    "manualStart":
       type: Boolean
-      default: true
+      default: false
     "data":
       type: Array
-    "scrollPosition":
-      type: Object
-      default: -> left: -1, top: -1
+    "scrollTop":
+      type: Number
+      default: 0
+    "scrollLeft":
+      type: Number
+      default: 0
     "clusterSizeFac":
       type: Number
       default: 1.5
-    "rowHeight":
-      type: Number
-      default: -1
     "template":
       type: String
+    "style":
+      type: Object
     "rowWatchers":
       type: Object
       default: -> {height: {vm: @, prop:"rowHeight"}}
@@ -66,12 +62,6 @@ module.exports =
       default: -> @$parent
 
   computed:
-    overflowX: ->
-      return "auto" if @scrollBars.x
-      return null
-    overflowY: ->
-      return "auto" if @scrollBars.y
-      return null
     position: ->
       if @autoHeight
         @disposeResizeCb = @onElementResize @$el, @updateHeight unless @disposeResizeCb?
@@ -79,6 +69,18 @@ module.exports =
       else
         @disposeResizeCb?()
         return null
+    computedStyle: ->
+      return null unless @state.started
+      style =
+        height: @height+'px'
+        position: @position
+        top: if @autoHeight then 0 else null
+        bottom: if @autoHeight then 0 else null
+        overflow: "auto"
+      if @style?
+        for key,val of @style
+          style[key] = val
+      return style
 
   data: ->
     clusters: []
@@ -86,6 +88,7 @@ module.exports =
     firstRowHeight: null
     lastRowHeight: null
     rowCount: null
+    rowHeight: null
     rowsCount: null
     clustersCount: null
     clusterHeight: null
@@ -95,58 +98,37 @@ module.exports =
     clusterVisibleLast: -1
     offsetHeight: 0
     minHeight: null
+    lastScrollTop: @scrollTop
+    lastScrollLeft: @scrollLeft
     state:
       started: false
+      startFinished: false
       loading: false
-    scrollBarSize:
-      height: 0
-      width: 0
-
-  ready: ->
-    for child in @$children
-      if child.isCluster
-        @clusters.push child
-      if child.isRow
-        @rowObj = child
-    throw new Error "no clusterize-row was found" unless @rowObj?
-    frag = @rowObj.$options.template
-    frag = frag.replace(/<\/div>$/,@_slotContents.default.textContent+"</div>")
-    factory = new @Vue.FragmentFactory @$parent, frag
-    for cluster in @clusters
-      cluster.factory = factory
-    if @autoStart
-      @start()
 
   methods:
-
     updateHeight: ->
-      if @rowHeight > -1 and Math.abs(@offsetHeight-@$el.offsetHeight)/@clusterHeight*@clusterSizeFac > 0.2
+      if @state.startFinished and @rowHeight > -1 and Math.abs(@offsetHeight-@$el.offsetHeight)/@clusterHeight*@clusterSizeFac > 0.2
         @calcClusterSize()
         @processClusterChange(@$el.scrollTop,true)
 
     start: (top = @$el.scrollTop) ->
       @state.started = true
+      @processTemplate()
       @state.loading = true
       if @data?
         @$watch("data", @processData) # watch data only if static
       @getData 0,0, (data) =>
         @getAndProcessDataCount()
-        if @rowHeight == -1
-          @calcRowHeight data[0], =>
-            @processScroll(top)
-            @onHover()
-        else
+        @calcRowHeight data[0], =>
           @calcClusterSize()
           @processScroll(top)
-          @onHover()
-
+          @state.startFinished = true
 
     getData: (first,last,cb) ->
       if @data?
         cb(@data[first..last])
       else
         @$emit("get-data",first,last,cb)
-
 
     getAndProcessDataCount: ->
       getDataCount = (cb) =>
@@ -161,12 +143,11 @@ module.exports =
           @updateLastRowHeight()
       getDataCount processDataCount
 
-    calcRowHeight: (dataSet,cb) ->
-      @clusters[0].data = [dataSet]
+    calcRowHeight: (dataPiece,cb) ->
+      @clusters[0].data = [dataPiece]
       @$nextTick =>
-        @rowHeight = @clusters[0].$el.offsetHeight
+        @rowHeight = @clusters[0].$el.children[1].getBoundingClientRect().height
         throw new Error "height of row is 0" if @rowHeight == 0
-        @calcClusterSize()
         cb()
 
     calcClusterSize: ->
@@ -248,50 +229,44 @@ module.exports =
 
     onScroll: (e) ->
       top = @$el.scrollTop
-      left = @$el.scrollLeft
-      if @scrollPosition.left != left
-        @scrollPosition.left = left
-      if @scrollPosition.top != top
-        @scrollPosition.top = top
+      @$emit "scroll-y", top
+      @$emit "scroll-x", @$el.scrollLeft
+      if @lastScrollTop != top
+        @lastScrollTop = top
         @processScroll(top)
-
-    setScrollPosition: ->
-      @setScrollTop(@scrollPosition.top)
-      @setScrollLeft(@scrollPosition.left)
-
-    setScrollTop: (top) ->
-      if top > -1 && @$el.scrollTop != top
-        @$el.scrollTop = top
-        @processScroll(top)
-
-    setScrollLeft: (left) ->
-      if left > -1 && @$el.scrollLeft != left
-        @$el.scrollLeft = left
 
 
     processData: (newData, oldData) ->
       if newData != oldData
         @getAndProcessDataCount()
 
-    onHover: ->
-      if @scrollBars.y
-        @checkScrollBarWidth()
-      if @scrollBars.x
-        @$nextTick @checkScrollBarHeight
-
-    checkScrollBarHeight: ->
-      @scrollBarSize.height = @$el.offsetHeight - @$el.clientHeight
-
-    checkScrollBarWidth: ->
-      @scrollBarSize.width = @$el.offsetWidth - @$el.clientWidth
-
     redraw: ->
       @processClusterChange(@$el.scrollTop,true)
 
+    processTemplate: ->
+      if @state.started
+        unless @template
+          @template = @fragToString(@_slotContents.default)
+        factory = new @Vue.FragmentFactory @parentVm, @template
+        for cluster in @clusters
+          cluster.factory = factory
+
+  ready: ->
+    for child in @$children
+      if child.isCluster
+        @clusters.push child
+      if child.isRow
+        @rowObj = child
+    unless @manualStart
+      @start()
+
   watch:
     "height" : "updateHeight"
-    "scrollPosition.top": "setScrollTop"
-    "scrollPosition.left": "setScrollLeft"
+    "scrollTop": (val) ->
+      if val != @$el.scrollTop
+        @$el.scrollTop = val
+        @processScroll(val)
+    "template": "processTemplate"
     "rowWatchers": (val) ->
       val.height = {vm: @, prop:"rowHeight"} unless val.height?
       return val

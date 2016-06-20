@@ -4,9 +4,8 @@
   p resize the window
   p rows per cluster: {{clusterSize}}
   .scrollcontainer(style="height:80%;position:relative")
-    clusterize(v-ref:clusterize v-bind:data="rowsData" v-bind:auto-height="true" style="width:200px;border:solid 1px black")
-      clusterize-row
-        {{data}}
+    clusterize(v-ref:clusterize v-bind:data="rowsData" auto-height v-bind:style="{width:'200px',border:'solid 1px black'}")
+      clusterize-row {{data}}
       p(slot="loading") loading
 </template>
 
