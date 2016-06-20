@@ -27,6 +27,12 @@ use version 0.2.0 before vue `1.0.24`
 components:
   "clusterize": require("vue-clusterize/clusterize")
   "clusterize-row": require("vue-clusterize/clusterize-row")
+# or ES6
+import {clusterize,clusterizeRow} from "vue-clusterize"
+components: {
+  "clusterize": clusterize
+  "clusterize-row": clusterizeRow
+}
 ```
 ```html
 <clusterize :data="rowsData">
