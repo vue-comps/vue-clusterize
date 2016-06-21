@@ -1,3 +1,5 @@
+var modulo = function(a, b) { return (+a % (b = +b) + b) % b; };
+
 module.exports = {
   mixins: [require("vue-mixins/onElementResize"), require("vue-mixins/vue"), require("vue-mixins/fragToString")],
   components: {
@@ -56,6 +58,14 @@ module.exports = {
       "default": function() {
         return this.$parent;
       }
+    },
+    "flex": {
+      type: Boolean,
+      "default": false
+    },
+    "flexInitial": {
+      type: Number,
+      "default": 20
     }
   },
   computed: {
@@ -65,12 +75,16 @@ module.exports = {
           this.disposeResizeCb = this.onElementResize(this.$el, this.updateHeight);
         }
         return "absolute";
+      } else if (this.flex) {
+        if (this.disposeResizeCb == null) {
+          this.disposeResizeCb = this.onElementResize(this.$el, this.updateHeight);
+        }
       } else {
         if (typeof this.disposeResizeCb === "function") {
           this.disposeResizeCb();
         }
-        return null;
       }
+      return null;
     },
     computedStyle: function() {
       var key, ref, style, val;
@@ -82,6 +96,8 @@ module.exports = {
         position: this.position,
         top: this.autoHeight ? 0 : null,
         bottom: this.autoHeight ? 0 : null,
+        left: this.autoHeight ? 0 : null,
+        right: this.autoHeight ? 0 : null,
         overflow: "auto"
       };
       if (this.style != null) {
@@ -103,6 +119,7 @@ module.exports = {
       rowCount: null,
       rowHeight: null,
       rowsCount: null,
+      itemsPerRow: 1,
       clustersCount: null,
       clusterHeight: null,
       clusterSize: null,
@@ -123,11 +140,16 @@ module.exports = {
   methods: {
     updateHeight: function() {
       if (this.state.startFinished && this.rowHeight > -1 && Math.abs(this.offsetHeight - this.$el.offsetHeight) / this.clusterHeight * this.clusterSizeFac > 0.2) {
-        this.calcClusterSize();
+        if (this.flex) {
+          this.calcRowHeight();
+        } else {
+          this.calcClusterSize();
+        }
         return this.processClusterChange(this.$el.scrollTop, true);
       }
     },
     start: function(top) {
+      var count;
       if (top == null) {
         top = this.$el.scrollTop;
       }
@@ -137,11 +159,20 @@ module.exports = {
       if (this.data != null) {
         this.$watch("data", this.processData);
       }
-      return this.getData(0, 0, (function(_this) {
+      count = 0;
+      if (this.flex) {
+        count = this.flexInitial;
+      }
+      return this.getData(0, count, (function(_this) {
         return function(data) {
           _this.getAndProcessDataCount();
-          return _this.calcRowHeight(data[0], function() {
-            _this.calcClusterSize();
+          if (_this.flex) {
+            _this.clusters[0].data = [data];
+          } else {
+            _this.clusters[0].data = data;
+          }
+          return _this.$nextTick(function() {
+            _this.calcRowHeight();
             _this.processScroll(top);
             return _this.state.startFinished = true;
           });
@@ -169,47 +200,84 @@ module.exports = {
       processDataCount = (function(_this) {
         return function(count) {
           if (count > 0) {
-            _this.rowsCount = count;
-            _this.clustersCount = Math.ceil(_this.rowsCount / _this.clusterSize);
+            _this.dataCount = count;
+            _this.clustersCount = Math.ceil(_this.dataCount / _this.itemsPerRow / _this.clusterSize);
             return _this.updateLastRowHeight();
           }
         };
       })(this);
       return getDataCount(processDataCount);
     },
-    calcRowHeight: function(dataPiece, cb) {
-      this.clusters[0].data = [dataPiece];
-      return this.$nextTick((function(_this) {
-        return function() {
-          _this.rowHeight = _this.clusters[0].$el.children[1].getBoundingClientRect().height;
-          if (_this.rowHeight === 0) {
-            throw new Error("height of row is 0");
+    calcRowHeight: function() {
+      var child, el, height, i, items, itemsPerRow, itemsPerRowLast, j, k, l, lastTop, maxHeights, rect, ref, row, style;
+      if (this.flex) {
+        maxHeights = [0];
+        el = this.clusters[0].$el;
+        lastTop = Number.MIN_VALUE;
+        itemsPerRow = [];
+        itemsPerRowLast = 0;
+        row = el.children[1];
+        items = row.children.length - 1;
+        k = 0;
+        for (i = l = 1, ref = items; 1 <= ref ? l <= ref : l >= ref; i = 1 <= ref ? ++l : --l) {
+          child = row.children[i];
+          rect = child.getBoundingClientRect();
+          style = window.getComputedStyle(child);
+          height = rect.height + parseInt(style.marginTop, 10) + parseInt(style.marginBottom, 10);
+          if (rect.top > lastTop + maxHeights[k] * 1 / 3) {
+            j = i - 1;
+            k++;
+            itemsPerRow.push(j - itemsPerRowLast);
+            itemsPerRowLast = j;
+            lastTop = rect.top;
+            maxHeights.push(height);
+          } else {
+            if (lastTop < rect.top) {
+              lastTop = rect.top;
+            }
+            if (maxHeights[maxHeights.length - 1] < height) {
+              maxHeights[maxHeights.length - 1] = height;
+            }
           }
-          return cb();
-        };
-      })(this));
+        }
+        itemsPerRow.shift();
+        maxHeights.shift();
+        if (itemsPerRow.length > 0) {
+          this.itemsPerRow = Math.floor(itemsPerRow.reduce(function(a, b) {
+            return a + b;
+          }) / itemsPerRow.length);
+        } else {
+          this.itemsPerRow = items;
+        }
+        this.rowHeight = maxHeights.reduce(function(a, b) {
+          return a + b;
+        }) / maxHeights.length;
+      } else {
+        this.rowHeight = this.clusters[0].$el.children[1].getBoundingClientRect().height;
+      }
+      return this.calcClusterSize();
     },
     calcClusterSize: function() {
-      var cluster, i, len, ref, results;
+      var cluster, l, len, ref, results;
       this.offsetHeight = this.$el.offsetHeight;
-      this.clusterSize = Math.ceil(this.$el.offsetHeight / this.rowHeight * this.clusterSizeFac);
-      if (this.rowsCount) {
-        this.clustersCount = Math.ceil(this.rowsCount / this.clusterSize);
+      this.clusterSize = Math.ceil(this.$el.offsetHeight / this.rowHeight * this.clusterSizeFac) * this.itemsPerRow;
+      if (this.dataCount) {
+        this.clustersCount = Math.ceil(this.dataCount / this.itemsPerRow / this.clusterSize);
         this.updateLastRowHeight();
       }
-      this.clusterHeight = this.rowHeight * this.clusterSize;
+      this.clusterHeight = this.rowHeight * this.clusterSize / this.itemsPerRow;
       ref = this.clusters;
       results = [];
-      for (i = 0, len = ref.length; i < len; i++) {
-        cluster = ref[i];
+      for (l = 0, len = ref.length; l < len; l++) {
+        cluster = ref[l];
         results.push(cluster.height = this.clusterHeight);
       }
       return results;
     },
     updateLastRowHeight: function() {
       var newHeight;
-      if (this.rowsCount && this.clusterSize) {
-        newHeight = (this.rowsCount - (this.clusterVisible + this.clustersBelow + 1) * this.clusterSize) * this.rowHeight;
+      if (this.dataCount && this.clusterSize) {
+        newHeight = (this.dataCount - (this.clusterVisible + this.clustersBelow + 1) * this.clusterSize) * this.rowHeight / this.itemsPerRow;
         if (newHeight > 0) {
           return this.lastRowHeight = newHeight;
         } else {
@@ -225,7 +293,7 @@ module.exports = {
       }
     },
     processClusterChange: function(top, repaint) {
-      var absI, absIs, down, i, j, k, len, position, ref, ref1, relI, results, results1;
+      var absI, absIs, down, l, len, m, n, position, ref, ref1, relI, results, results1;
       if (top == null) {
         top = this.$el.scrollTop;
       }
@@ -244,18 +312,18 @@ module.exports = {
       if (down) {
         absIs = (function() {
           results = [];
-          for (var i = ref = position - 2; ref <= position ? i <= position : i >= position; ref <= position ? i++ : i--){ results.push(i); }
+          for (var l = ref = position - 2; ref <= position ? l <= position : l >= position; ref <= position ? l++ : l--){ results.push(l); }
           return results;
         }).apply(this);
       } else {
         absIs = (function() {
           results1 = [];
-          for (var j = position, ref1 = position - 2; position <= ref1 ? j <= ref1 : j >= ref1; position <= ref1 ? j++ : j--){ results1.push(j); }
+          for (var m = position, ref1 = position - 2; position <= ref1 ? m <= ref1 : m >= ref1; position <= ref1 ? m++ : m--){ results1.push(m); }
           return results1;
         }).apply(this);
       }
-      for (k = 0, len = absIs.length; k < len; k++) {
-        absI = absIs[k];
+      for (n = 0, len = absIs.length; n < len; n++) {
+        absI = absIs[n];
         relI = absI % 3;
         if (this.clusters[relI].nr !== absI || repaint) {
           if (down) {
@@ -281,13 +349,28 @@ module.exports = {
       this.$emit("cluster-loading", cluster.nr);
       return this.getData(first, last, (function(_this) {
         return function(data) {
+          var currentData, d, data2, i, l, len;
           if (cluster.loading === loading) {
             if (data.length !== _this.clusterSize) {
-              cluster.height = data.length * _this.rowHeight;
+              cluster.height = data.length * _this.rowHeight / _this.itemsPerRow;
             } else {
               cluster.height = _this.clusterHeight;
             }
-            cluster.data = data;
+            if (_this.flex) {
+              data2 = [];
+              currentData = [];
+              for (i = l = 0, len = data.length; l < len; i = ++l) {
+                d = data[i];
+                if (modulo(i, _this.itemsPerRow) === 0) {
+                  currentData = [];
+                  data2.push(currentData);
+                }
+                currentData.push(d);
+              }
+              cluster.data = data2;
+            } else {
+              cluster.data = data;
+            }
             cluster.loading = 0;
             return _this.$emit("cluster-loaded", cluster.nr);
           }
@@ -322,7 +405,7 @@ module.exports = {
       return this.processClusterChange(this.$el.scrollTop, true);
     },
     processTemplate: function() {
-      var cluster, factory, i, len, ref, results;
+      var cluster, factory, l, len, ref, results;
       if (this.state.started) {
         if (!this.template) {
           this.template = this.fragToString(this._slotContents["default"]);
@@ -330,8 +413,8 @@ module.exports = {
         factory = new this.Vue.FragmentFactory(this.parentVm, this.template);
         ref = this.clusters;
         results = [];
-        for (i = 0, len = ref.length; i < len; i++) {
-          cluster = ref[i];
+        for (l = 0, len = ref.length; l < len; l++) {
+          cluster = ref[l];
           results.push(cluster.factory = factory);
         }
         return results;
@@ -339,10 +422,10 @@ module.exports = {
     }
   },
   ready: function() {
-    var child, i, len, ref;
+    var child, l, len, ref;
     ref = this.$children;
-    for (i = 0, len = ref.length; i < len; i++) {
-      child = ref[i];
+    for (l = 0, len = ref.length; l < len; l++) {
+      child = ref[l];
       if (child.isCluster) {
         this.clusters.push(child);
       }

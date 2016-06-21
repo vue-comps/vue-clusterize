@@ -57,6 +57,8 @@ For examples see [`dev/`](https://github.com/vue-comps/vue-clusterize/tree/maste
 | style | Object | - | to pass trough style (vue object) |
 | rowWatchers | Object | {height: {vm: this, prop:"rowHeight"}} | variables, will be available in template |
 | parentVm | Object | this.$parent | where to resolve components in template |
+| flex | Boolean | false | allow multiple items per row. See [flex](#flex). |
+| flex-initial | Number | 20 | data pieces to take for calculation of row height (should fill several rows) |
 
 ## Autoheight
 
@@ -96,6 +98,23 @@ methods:
 To issue a manual redraw, call `redraw()` on the clusterize instance.
 
 If you want to enforce a scroll-to-top use the `scrollTop` prop.
+
+## Flex
+
+When using the `flex` prop, the usage changes. You will now recieve a array of row items per row which you can use in a `v-for`:
+```html
+<clusterize :data="rowsData" flex>
+  <clusterize-row
+    v-for="d in data" <!-- data is a container array -->
+    style="display:flex;align-items:center;justify-content:space-between"
+  >
+    <div>{{d}}</div>
+  </clusterize-row>
+</clusterize>
+```
+Keep in mind, that the `clusterize-row` height will be enforced, some whitespace to even out overlap could be required.
+
+The row height, items per row and rows per cluster will be recalculated on resize of clusterize.
 
 # Development
 Clone repository.

@@ -60,15 +60,23 @@ module.exports =
     "parentVm":
       type: Object
       default: -> @$parent
+    "flex":
+      type: Boolean
+      default: false
+    "flexInitial":
+      type: Number
+      default: 20
 
   computed:
     position: ->
       if @autoHeight
         @disposeResizeCb = @onElementResize @$el, @updateHeight unless @disposeResizeCb?
         return "absolute"
+      else if @flex
+        @disposeResizeCb = @onElementResize @$el, @updateHeight unless @disposeResizeCb?
       else
         @disposeResizeCb?()
-        return null
+      return null
     computedStyle: ->
       return null unless @state.started
       style =
@@ -76,6 +84,8 @@ module.exports =
         position: @position
         top: if @autoHeight then 0 else null
         bottom: if @autoHeight then 0 else null
+        left: if @autoHeight then 0 else null
+        right: if @autoHeight then 0 else null
         overflow: "auto"
       if @style?
         for key,val of @style
@@ -90,6 +100,7 @@ module.exports =
     rowCount: null
     rowHeight: null
     rowsCount: null
+    itemsPerRow: 1
     clustersCount: null
     clusterHeight: null
     clusterSize: null
@@ -108,7 +119,10 @@ module.exports =
   methods:
     updateHeight: ->
       if @state.startFinished and @rowHeight > -1 and Math.abs(@offsetHeight-@$el.offsetHeight)/@clusterHeight*@clusterSizeFac > 0.2
-        @calcClusterSize()
+        if @flex
+          @calcRowHeight()
+        else
+          @calcClusterSize()
         @processClusterChange(@$el.scrollTop,true)
 
     start: (top = @$el.scrollTop) ->
@@ -117,10 +131,17 @@ module.exports =
       @state.loading = true
       if @data?
         @$watch("data", @processData) # watch data only if static
-      @getData 0,0, (data) =>
+      count = 0
+      if @flex
+        count = @flexInitial
+      @getData 0,count, (data) =>
         @getAndProcessDataCount()
-        @calcRowHeight data[0], =>
-          @calcClusterSize()
+        if @flex
+          @clusters[0].data = [data]
+        else
+          @clusters[0].data = data
+        @$nextTick =>
+          @calcRowHeight()
           @processScroll(top)
           @state.startFinished = true
 
@@ -138,31 +159,62 @@ module.exports =
           @$emit("get-data-count",cb)
       processDataCount = (count) =>
         if count > 0
-          @rowsCount = count
-          @clustersCount = Math.ceil(@rowsCount/@clusterSize)
+          @dataCount = count
+          @clustersCount = Math.ceil(@dataCount / @itemsPerRow / @clusterSize)
           @updateLastRowHeight()
       getDataCount processDataCount
 
-    calcRowHeight: (dataPiece,cb) ->
-      @clusters[0].data = [dataPiece]
-      @$nextTick =>
+    calcRowHeight: ->
+      if @flex
+        maxHeights = [0]
+        el = @clusters[0].$el
+        lastTop = Number.MIN_VALUE
+        itemsPerRow = []
+        itemsPerRowLast = 0
+        row = el.children[1]
+        items = row.children.length-1
+        k = 0
+        for i in [1..items]
+          child = row.children[i]
+          rect = child.getBoundingClientRect()
+          style = window.getComputedStyle(child)
+          height = rect.height + parseInt(style.marginTop,10) + parseInt(style.marginBottom,10)
+          if rect.top > lastTop + maxHeights[k]*1/3
+            j = i-1
+            k++
+            itemsPerRow.push j-itemsPerRowLast
+            itemsPerRowLast = j
+            lastTop = rect.top
+            maxHeights.push height
+          else
+            if lastTop < rect.top
+              lastTop = rect.top
+            if maxHeights[maxHeights.length-1] < height
+              maxHeights[maxHeights.length-1] = height
+        itemsPerRow.shift()
+        maxHeights.shift()
+        if itemsPerRow.length > 0
+          @itemsPerRow = Math.floor(itemsPerRow.reduce((a,b)->a+b)/itemsPerRow.length)
+        else
+          @itemsPerRow = items
+        @rowHeight = maxHeights.reduce((a,b)->a+b)/maxHeights.length
+      else
         @rowHeight = @clusters[0].$el.children[1].getBoundingClientRect().height
-        throw new Error "height of row is 0" if @rowHeight == 0
-        cb()
+      @calcClusterSize()
 
     calcClusterSize: ->
       @offsetHeight = @$el.offsetHeight
-      @clusterSize = Math.ceil(@$el.offsetHeight/@rowHeight*@clusterSizeFac)
-      if @rowsCount
-        @clustersCount = Math.ceil(@rowsCount/@clusterSize)
+      @clusterSize = Math.ceil(@$el.offsetHeight/@rowHeight*@clusterSizeFac)*@itemsPerRow
+      if @dataCount
+        @clustersCount = Math.ceil(@dataCount / @itemsPerRow / @clusterSize)
         @updateLastRowHeight()
-      @clusterHeight = @rowHeight*@clusterSize
+      @clusterHeight = @rowHeight*@clusterSize/@itemsPerRow
       for cluster in @clusters
         cluster.height = @clusterHeight
 
     updateLastRowHeight: ->
-      if @rowsCount and @clusterSize
-        newHeight = (@rowsCount-(@clusterVisible+@clustersBelow+1)*@clusterSize)*@rowHeight
+      if @dataCount and @clusterSize
+        newHeight = (@dataCount - (@clusterVisible+@clustersBelow+1)*@clusterSize)*@rowHeight / @itemsPerRow
         if newHeight > 0
           @lastRowHeight = newHeight
         else
@@ -213,10 +265,20 @@ module.exports =
       @getData first, last, (data) =>
         if cluster.loading == loading
           if data.length != @clusterSize
-            cluster.height = data.length * @rowHeight
+            cluster.height = data.length * @rowHeight / @itemsPerRow
           else
             cluster.height = @clusterHeight
-          cluster.data = data
+          if @flex
+            data2 = []
+            currentData = []
+            for d,i in data
+              if i %% @itemsPerRow == 0
+                currentData = []
+                data2.push currentData
+              currentData.push d
+            cluster.data = data2
+          else
+            cluster.data = data
           cluster.loading = 0
           @$emit "cluster-loaded", cluster.nr
 

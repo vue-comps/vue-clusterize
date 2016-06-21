@@ -22,4 +22,4 @@ module.exports = {
 };
 
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<div class=clusterize-row v-bind:style=\"{height:height+'px',overflow:'visible',display:loading?'none':null}\"><slot></slot></div>"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<div class=clusterize-row v-bind:style=\"{height:height+'px',overflow:'visible'}\"><slot v-if=\"loading==0\"></slot></div>"
