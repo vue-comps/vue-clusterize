@@ -124,7 +124,6 @@ npm run test
 Browse to `http://localhost:8080/`.
 
 ## To-Do
-- allow more than one (fixed-width) object per row + autosize to adjust #objects to actual width.
 - use html5 history mode or document.store to save scroll position
 
 ## License
