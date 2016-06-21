@@ -59,6 +59,7 @@ For examples see [`dev/`](https://github.com/vue-comps/vue-clusterize/tree/maste
 | parentVm | Object | this.$parent | where to resolve components in template |
 | flex | Boolean | false | allow multiple items per row. See [flex](#flex). |
 | flex-initial | Number | 20 | data pieces to take for calculation of row height (should fill several rows) |
+| flex-fac | Number | 1 | reduce to reduce items per row |
 
 ## Autoheight
 
@@ -112,8 +113,6 @@ When using the `flex` prop, the usage changes. You will now recieve a array of r
   </clusterize-row>
 </clusterize>
 ```
-Keep in mind, that the `clusterize-row` height will be enforced, some whitespace to even out overlap could be required.
-
 The row height, items per row and rows per cluster will be recalculated on resize of clusterize.
 
 # Development

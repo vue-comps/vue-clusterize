@@ -66,6 +66,10 @@ module.exports = {
     "flexInitial": {
       type: Number,
       "default": 20
+    },
+    "flexFac": {
+      type: Number,
+      "default": 1
     }
   },
   computed: {
@@ -127,6 +131,7 @@ module.exports = {
       clusterVisible: 0,
       clusterVisibleLast: -1,
       offsetHeight: 0,
+      itemWidth: 0,
       minHeight: null,
       lastScrollTop: this.scrollTop,
       lastScrollLeft: this.scrollLeft,
@@ -139,13 +144,42 @@ module.exports = {
   },
   methods: {
     updateHeight: function() {
-      if (this.state.startFinished && this.rowHeight > -1 && Math.abs(this.offsetHeight - this.$el.offsetHeight) / this.clusterHeight * this.clusterSizeFac > 0.2) {
+      var changedHeight, changedWidth, process;
+      process = (function(_this) {
+        return function() {
+          var data, l, len, oldData, ref, tmp;
+          if (_this.flex) {
+            oldData = _this.clusters[0].data;
+            tmp = [];
+            ref = _this.clusters[0].data;
+            for (l = 0, len = ref.length; l < len; l++) {
+              data = ref[l];
+              tmp = tmp.concat(data);
+              if (tmp.length >= _this.flexInitial) {
+                break;
+              }
+            }
+            _this.clusters[0].data = [tmp];
+            return _this.$nextTick(function() {
+              _this.calcRowHeight();
+              return _this.processClusterChange(_this.$el.scrollTop, true);
+            });
+          } else {
+            _this.calcClusterSize();
+            return _this.processClusterChange(_this.$el.scrollTop, true);
+          }
+        };
+      })(this);
+      if (this.state.startFinished && this.rowHeight > -1) {
+        changedHeight = Math.abs(this.offsetHeight - this.$el.offsetHeight) / this.clusterHeight * this.clusterSizeFac > 0.2;
         if (this.flex) {
-          this.calcRowHeight();
-        } else {
-          this.calcClusterSize();
+          changedWidth = this.$el.clientWidth - this.itemsPerRow * this.itemWidth;
+          if (changedWidth > this.itemWidth || changedWidth < 1) {
+            return process();
+          }
+        } else if (changedHeight) {
+          return process();
         }
-        return this.processClusterChange(this.$el.scrollTop, true);
       }
     },
     start: function(top) {
@@ -209,7 +243,7 @@ module.exports = {
       return getDataCount(processDataCount);
     },
     calcRowHeight: function() {
-      var child, el, height, i, items, itemsPerRow, itemsPerRowLast, j, k, l, lastTop, maxHeights, rect, ref, row, style;
+      var child, el, height, i, items, itemsPerRow, itemsPerRowLast, j, k, l, lastTop, maxHeights, rect, ref, row, style, width;
       if (this.flex) {
         maxHeights = [0];
         el = this.clusters[0].$el;
@@ -218,13 +252,15 @@ module.exports = {
         itemsPerRowLast = 0;
         row = el.children[1];
         items = row.children.length - 1;
+        width = 0;
         k = 0;
         for (i = l = 1, ref = items; 1 <= ref ? l <= ref : l >= ref; i = 1 <= ref ? ++l : --l) {
           child = row.children[i];
           rect = child.getBoundingClientRect();
           style = window.getComputedStyle(child);
           height = rect.height + parseInt(style.marginTop, 10) + parseInt(style.marginBottom, 10);
-          if (rect.top > lastTop + maxHeights[k] * 1 / 3) {
+          width += rect.width;
+          if (rect.top > lastTop + maxHeights[k] * 1 / 3 && i > 1) {
             j = i - 1;
             k++;
             itemsPerRow.push(j - itemsPerRowLast);
@@ -245,13 +281,18 @@ module.exports = {
         if (itemsPerRow.length > 0) {
           this.itemsPerRow = Math.floor(itemsPerRow.reduce(function(a, b) {
             return a + b;
-          }) / itemsPerRow.length);
+          }) / itemsPerRow.length * this.flexFac);
         } else {
           this.itemsPerRow = items;
         }
-        this.rowHeight = maxHeights.reduce(function(a, b) {
-          return a + b;
-        }) / maxHeights.length;
+        this.itemWidth = width / items;
+        if (maxHeights.length > 0) {
+          this.rowHeight = maxHeights.reduce(function(a, b) {
+            return a + b;
+          }) / maxHeights.length;
+        } else {
+          this.rowHeight = height;
+        }
       } else {
         this.rowHeight = this.clusters[0].$el.children[1].getBoundingClientRect().height;
       }

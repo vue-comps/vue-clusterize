@@ -66,6 +66,9 @@ module.exports =
     "flexInitial":
       type: Number
       default: 20
+    "flexFac":
+      type: Number
+      default: 1
 
   computed:
     position: ->
@@ -108,6 +111,7 @@ module.exports =
     clusterVisible: 0
     clusterVisibleLast: -1
     offsetHeight: 0
+    itemWidth: 0
     minHeight: null
     lastScrollTop: @scrollTop
     lastScrollLeft: @scrollLeft
@@ -118,12 +122,29 @@ module.exports =
 
   methods:
     updateHeight: ->
-      if @state.startFinished and @rowHeight > -1 and Math.abs(@offsetHeight-@$el.offsetHeight)/@clusterHeight*@clusterSizeFac > 0.2
+      process = =>
         if @flex
-          @calcRowHeight()
+          oldData = @clusters[0].data
+          tmp = []
+          for data in @clusters[0].data
+            tmp = tmp.concat data
+            break if tmp.length >= @flexInitial
+          @clusters[0].data = [tmp]
+          @$nextTick =>
+            @calcRowHeight()
+            @processClusterChange(@$el.scrollTop,true)
         else
           @calcClusterSize()
-        @processClusterChange(@$el.scrollTop,true)
+          @processClusterChange(@$el.scrollTop,true)
+      if @state.startFinished and @rowHeight > -1
+        changedHeight = Math.abs(@offsetHeight-@$el.offsetHeight)/@clusterHeight*@clusterSizeFac > 0.2
+        if @flex
+          changedWidth = @$el.clientWidth - @itemsPerRow*@itemWidth
+          if changedWidth > @itemWidth or changedWidth < 1
+            process()
+        else if changedHeight
+          process()
+
 
     start: (top = @$el.scrollTop) ->
       @state.started = true
@@ -173,13 +194,15 @@ module.exports =
         itemsPerRowLast = 0
         row = el.children[1]
         items = row.children.length-1
+        width = 0
         k = 0
         for i in [1..items]
           child = row.children[i]
           rect = child.getBoundingClientRect()
           style = window.getComputedStyle(child)
           height = rect.height + parseInt(style.marginTop,10) + parseInt(style.marginBottom,10)
-          if rect.top > lastTop + maxHeights[k]*1/3
+          width += rect.width
+          if rect.top > lastTop + maxHeights[k]*1/3 and i > 1
             j = i-1
             k++
             itemsPerRow.push j-itemsPerRowLast
@@ -194,10 +217,14 @@ module.exports =
         itemsPerRow.shift()
         maxHeights.shift()
         if itemsPerRow.length > 0
-          @itemsPerRow = Math.floor(itemsPerRow.reduce((a,b)->a+b)/itemsPerRow.length)
+          @itemsPerRow = Math.floor(itemsPerRow.reduce((a,b)->a+b)/itemsPerRow.length*@flexFac)
         else
           @itemsPerRow = items
-        @rowHeight = maxHeights.reduce((a,b)->a+b)/maxHeights.length
+        @itemWidth = width / items
+        if maxHeights.length > 0
+          @rowHeight = maxHeights.reduce((a,b)->a+b)/maxHeights.length
+        else
+          @rowHeight = height
       else
         @rowHeight = @clusters[0].$el.children[1].getBoundingClientRect().height
       @calcClusterSize()

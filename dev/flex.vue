@@ -6,10 +6,10 @@
   p(style="margin-left:50%") Different size with display:flex // items per cluster: {{clusterSize2}}
   .scrollcontainer(style="height:80%;position:relative;width:40%;float:left")
     clusterize(v-ref:clusterize v-bind:data="rowsData" flex v-bind:flex-initial="100" auto-height v-bind:style="{border:'solid 1px black'}")
-      clusterize-row
+      clusterize-row(style="clear:both")
         span(style="float:left;padding:5px" v-for="d in data") {{d}}
   .flexcontainer(style="height:80%;position:relative;width:40%;float:left")
-    clusterize(v-ref:clusterize2 @get-data="getData" @get-data-count="getDataCount" flex v-bind:flex-initial="40" auto-height v-bind:style="{border:'solid 1px black'}")
+    clusterize(v-ref:clusterize2 @get-data="getData" @get-data-count="getDataCount" flex v-bind:flex-fac=0.99 v-bind:flex-initial="40" auto-height v-bind:style="{border:'solid 1px black'}")
       clusterize-row(style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between")
         div(style="text-align:center;margin:5px",v-bind:style="{background:d.color,height:d.height,width:d.width}",v-for="d in data") {{d.i}}
 </template>
