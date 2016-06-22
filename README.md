@@ -50,13 +50,13 @@ For examples see [`dev/`](https://github.com/vue-comps/vue-clusterize/tree/maste
 | auto-height | Boolean | false | If autoheight should be used (see below) |
 | manual-start | Boolean | false | rendering doesn't start on `ready` (call `start` on the component instance instead)|
 | data | Array | [] | static data to render |
-| scrollTop | Number | 0 | sets scrollTop |
-| scrollLeft | Number | 0 | sets scrollLeft |
+| scroll-top | Number | 0 | sets scrollTop |
+| scroll-left | Number | 0 | sets scrollLeft |
 | cluster-size-fac | Number | 1.5 | determines the cluster size relative to visible size |
 | template | String | - | row template (defaults to slot content) |
 | style | Object | - | to pass trough style (vue object) |
-| rowWatchers | Object | {height: {vm: this, prop:"rowHeight"}} | variables, will be available in template |
-| parentVm | Object | this.$parent | where to resolve components in template |
+| row-watchers | Object | {height: {vm: this, prop:"rowHeight"}} | variables, will be available in template |
+| parent-vm | Object | this.$parent | where to resolve components in template |
 | flex | Boolean | false | allow multiple items per row. See [flex](#flex). |
 | flex-initial | Number | 20 | data pieces to take for calculation of row height (should fill several rows) |
 | flex-fac | Number | 1 | reduce to reduce items per row |
@@ -105,11 +105,8 @@ If you want to enforce a scroll-to-top use the `scrollTop` prop.
 When using the `flex` prop, the usage changes. You will now recieve a array of row items per row which you can use in a `v-for`:
 ```html
 <clusterize :data="rowsData" flex>
-  <clusterize-row
-    v-for="d in data" <!-- data is a container array -->
-    style="display:flex;align-items:center;justify-content:space-between"
-  >
-    <div>{{d}}</div>
+  <clusterize-row style="display:flex;align-items:center;justify-content:space-between">
+    <div v-for="d in data">{{d}}</div>
   </clusterize-row>
 </clusterize>
 ```
