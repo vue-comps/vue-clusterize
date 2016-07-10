@@ -328,6 +328,7 @@ module.exports =
     processData: (newData, oldData) ->
       if newData != oldData
         @getAndProcessDataCount()
+        @redraw()
 
     redraw: ->
       @processClusterChange(@$el.scrollTop,true)

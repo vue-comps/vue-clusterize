@@ -439,7 +439,8 @@ module.exports = {
     },
     processData: function(newData, oldData) {
       if (newData !== oldData) {
-        return this.getAndProcessDataCount();
+        this.getAndProcessDataCount();
+        return this.redraw();
       }
     },
     redraw: function() {
