@@ -25,22 +25,40 @@ use version 0.2.0 before vue `1.0.24`
 ```coffee
 # link the components up
 components:
-  "clusterize": require("vue-clusterize/clusterize")
-  "clusterize-row": require("vue-clusterize/clusterize-row")
+  "clusterize": require("vue-clusterize")
 # or ES6
-import {clusterize,clusterizeRow} from "vue-clusterize"
+import clusterize from "vue-clusterize"
 components: {
   "clusterize": clusterize
-  "clusterize-row": clusterizeRow
 }
 ```
 ```html
 <clusterize :data="rowsData">
-  <clusterize-row>{{data}} - index: {{index}}</clusterize-row>
+  <!-- default slot will be used as a template for a single row -->
+  <div>{{data}}</div>
+  <!-- loading slot will be displayed in each cluster which is busy fetching data -->
   <p slot="loading">loading...</p>
 </clusterize>
 ```
 For examples see [`dev/`](https://github.com/vue-comps/vue-clusterize/tree/master/dev).
+
+#### Available variables in template
+| Name | type | description |
+| ---:| --- |  --- |
+| data | Object | a single datapiece (see `binding-name` in props) |
+| loading | Number |  will be 0 when finished |
+| index | Number | index of the datapiece |
+| height | Number | the height of a single row |
+
+you can add your own variables with the `row-watchers` prop.
+
+example:
+```html
+<clusterize :data="rowsData">
+  <div v-if="!loading" v-bind:style="{height:height+'px'}">{{data}} - index: {{index}}</div>
+  <p slot="loading">loading...</p>
+</clusterize>
+```
 
 #### Props
 | Name | type | default | description |

@@ -99,7 +99,6 @@ module.exports =
 
   data: ->
     clusters: []
-    rowObj: null
     firstRowHeight: null
     lastRowHeight: null
     rowCount: null
@@ -169,9 +168,11 @@ module.exports =
             @processScroll(top)
             @state.startFinished = true
       else
-        @calcClusterSize()
-        @processScroll(top)
-        @state.startFinished = true
+        @getAndProcessDataCount()
+        @$nextTick =>
+          @calcClusterSize()
+          @processScroll(top)
+          @state.startFinished = true
 
     getData: (first,last,cb) ->
       if @data?
@@ -242,6 +243,7 @@ module.exports =
       @clusterSize = Math.ceil(@$el.offsetHeight/@rowHeight*@clusterSizeFac)*@itemsPerRow
       if @dataCount
         @clustersCount = Math.ceil(@dataCount / @itemsPerRow / @clusterSize)
+        @clustersCount = 3 if @clustersCount < 3
         @updateLastRowHeight()
       @clusterHeight = @rowHeight*@clusterSize/@itemsPerRow
       for cluster in @clusters
@@ -354,8 +356,6 @@ module.exports =
     for child in @$children
       if child.isCluster
         @clusters.push child
-      if child.isRow
-        @rowObj = child
     unless @manualStart
       @start()
 

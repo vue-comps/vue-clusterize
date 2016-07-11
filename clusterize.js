@@ -120,7 +120,6 @@ module.exports = {
   data: function() {
     return {
       clusters: [],
-      rowObj: null,
       firstRowHeight: null,
       lastRowHeight: null,
       rowCount: null,
@@ -217,9 +216,14 @@ module.exports = {
           };
         })(this));
       } else {
-        this.calcClusterSize();
-        this.processScroll(top);
-        return this.state.startFinished = true;
+        this.getAndProcessDataCount();
+        return this.$nextTick((function(_this) {
+          return function() {
+            _this.calcClusterSize();
+            _this.processScroll(top);
+            return _this.state.startFinished = true;
+          };
+        })(this));
       }
     },
     getData: function(first, last, cb) {
@@ -313,6 +317,9 @@ module.exports = {
       this.clusterSize = Math.ceil(this.$el.offsetHeight / this.rowHeight * this.clusterSizeFac) * this.itemsPerRow;
       if (this.dataCount) {
         this.clustersCount = Math.ceil(this.dataCount / this.itemsPerRow / this.clusterSize);
+        if (this.clustersCount < 3) {
+          this.clustersCount = 3;
+        }
         this.updateLastRowHeight();
       }
       this.clusterHeight = this.rowHeight * this.clusterSize / this.itemsPerRow;
@@ -480,9 +487,6 @@ module.exports = {
       child = ref[l];
       if (child.isCluster) {
         this.clusters.push(child);
-      }
-      if (child.isRow) {
-        this.rowObj = child;
       }
     }
     if (!this.manualStart) {

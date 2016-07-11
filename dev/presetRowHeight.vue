@@ -1,9 +1,8 @@
 <template lang="pug">
 .container
   a(href="https://vue-comps.github.io/vue-clusterize/blob/master/dev/basic.vue") source
-  clusterize(v-ref:clusterize v-bind:data="rowsData" v-bind:height="400" v-bind:style="{width:'200px'}")
-    div {{data}} - index: {{index}}
-    p(slot="loading") loading
+  clusterize(v-ref:clusterize v-bind:data="rowsData" v-bind:row-height="25" v-bind:height="400" v-bind:style="{width:'200px'}")
+    div(v-bind:style="{height:height+'px'}") {{data}}
 </template>
 
 <script lang="coffee">

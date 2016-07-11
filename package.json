@@ -8,7 +8,7 @@
     "email": "paul.pflugradt@gmail.com"
   },
   "license": "MIT",
-  "main": "index.js",
+  "main": "clusterize.js",
   "repository": {
     "type": "git",
     "url": "git://github.com/paulpflug/vue-clusterize"
