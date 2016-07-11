@@ -327,10 +327,10 @@ module.exports =
 
     processData: (newData, oldData) ->
       if newData != oldData
-        @getAndProcessDataCount()
         @redraw()
 
     redraw: ->
+      @getAndProcessDataCount()
       @processClusterChange(@$el.scrollTop,true)
 
     processTemplate: ->

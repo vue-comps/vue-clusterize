@@ -439,11 +439,11 @@ module.exports = {
     },
     processData: function(newData, oldData) {
       if (newData !== oldData) {
-        this.getAndProcessDataCount();
         return this.redraw();
       }
     },
     redraw: function() {
+      this.getAndProcessDataCount();
       return this.processClusterChange(this.$el.scrollTop, true);
     },
     processTemplate: function() {
