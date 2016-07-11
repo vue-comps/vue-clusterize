@@ -53,6 +53,7 @@ For examples see [`dev/`](https://github.com/vue-comps/vue-clusterize/tree/maste
 | scroll-top | Number | 0 | sets scrollTop |
 | scroll-left | Number | 0 | sets scrollLeft |
 | cluster-size-fac | Number | 1.5 | determines the cluster size relative to visible size |
+| row-height | Number | null | enforced row-height, will be determined at runtime when not set |
 | template | String | - | row template (defaults to slot content) |
 | style | Object | - | to pass trough style (vue object) |
 | row-watchers | Object | {height: {vm: this, prop:"rowHeight"}} | variables, will be available in template |

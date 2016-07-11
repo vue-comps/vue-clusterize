@@ -50,6 +50,8 @@ module.exports =
     "clusterSizeFac":
       type: Number
       default: 1.5
+    "rowHeight":
+      type: Number
     "template":
       type: String
     "style":
@@ -101,7 +103,6 @@ module.exports =
     firstRowHeight: null
     lastRowHeight: null
     rowCount: null
-    rowHeight: null
     rowsCount: null
     itemsPerRow: 1
     clustersCount: null
@@ -186,47 +187,48 @@ module.exports =
       getDataCount processDataCount
 
     calcRowHeight: ->
-      if @flex
-        maxHeights = [0]
-        el = @clusters[0].$el
-        lastTop = Number.MIN_VALUE
-        itemsPerRow = []
-        itemsPerRowLast = 0
-        row = el.children[1]
-        items = row.children.length-1
-        width = 0
-        k = 0
-        for i in [1..items]
-          child = row.children[i]
-          rect = child.getBoundingClientRect()
-          style = window.getComputedStyle(child)
-          height = rect.height + parseInt(style.marginTop,10) + parseInt(style.marginBottom,10)
-          width += rect.width
-          if rect.top > lastTop + maxHeights[k]*1/3 and i > 1
-            j = i-1
-            k++
-            itemsPerRow.push j-itemsPerRowLast
-            itemsPerRowLast = j
-            lastTop = rect.top
-            maxHeights.push height
-          else
-            if lastTop < rect.top
+      unless @rowHeight
+        if @flex
+          maxHeights = [0]
+          el = @clusters[0].$el
+          lastTop = Number.MIN_VALUE
+          itemsPerRow = []
+          itemsPerRowLast = 0
+          row = el.children[1]
+          items = row.children.length-1
+          width = 0
+          k = 0
+          for i in [1..items]
+            child = row.children[i]
+            rect = child.getBoundingClientRect()
+            style = window.getComputedStyle(child)
+            height = rect.height + parseInt(style.marginTop,10) + parseInt(style.marginBottom,10)
+            width += rect.width
+            if rect.top > lastTop + maxHeights[k]*1/3 and i > 1
+              j = i-1
+              k++
+              itemsPerRow.push j-itemsPerRowLast
+              itemsPerRowLast = j
               lastTop = rect.top
-            if maxHeights[maxHeights.length-1] < height
-              maxHeights[maxHeights.length-1] = height
-        itemsPerRow.shift()
-        maxHeights.shift()
-        if itemsPerRow.length > 0
-          @itemsPerRow = Math.floor(itemsPerRow.reduce((a,b)->a+b)/itemsPerRow.length*@flexFac)
+              maxHeights.push height
+            else
+              if lastTop < rect.top
+                lastTop = rect.top
+              if maxHeights[maxHeights.length-1] < height
+                maxHeights[maxHeights.length-1] = height
+          itemsPerRow.shift()
+          maxHeights.shift()
+          if itemsPerRow.length > 0
+            @itemsPerRow = Math.floor(itemsPerRow.reduce((a,b)->a+b)/itemsPerRow.length*@flexFac)
+          else
+            @itemsPerRow = items
+          @itemWidth = width / items
+          if maxHeights.length > 0
+            @rowHeight = maxHeights.reduce((a,b)->a+b)/maxHeights.length
+          else
+            @rowHeight = height
         else
-          @itemsPerRow = items
-        @itemWidth = width / items
-        if maxHeights.length > 0
-          @rowHeight = maxHeights.reduce((a,b)->a+b)/maxHeights.length
-        else
-          @rowHeight = height
-      else
-        @rowHeight = @clusters[0].$el.children[1].getBoundingClientRect().height
+          @rowHeight = @clusters[0].$el.children[1].getBoundingClientRect().height
       @calcClusterSize()
 
     calcClusterSize: ->
