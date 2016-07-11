@@ -199,22 +199,28 @@ module.exports = {
       if (this.flex) {
         count = this.flexInitial;
       }
-      return this.getData(0, count, (function(_this) {
-        return function(data) {
-          _this.getAndProcessDataCount();
-          _this.clusters[0].index = 0;
-          if (_this.flex) {
-            _this.clusters[0].data = [data];
-          } else {
-            _this.clusters[0].data = data;
-          }
-          return _this.$nextTick(function() {
-            _this.calcRowHeight();
-            _this.processScroll(top);
-            return _this.state.startFinished = true;
-          });
-        };
-      })(this));
+      if (!this.rowHeight) {
+        return this.getData(0, count, (function(_this) {
+          return function(data) {
+            _this.getAndProcessDataCount();
+            _this.clusters[0].index = 0;
+            if (_this.flex) {
+              _this.clusters[0].data = [data];
+            } else {
+              _this.clusters[0].data = data;
+            }
+            return _this.$nextTick(function() {
+              _this.calcRowHeight();
+              _this.processScroll(top);
+              return _this.state.startFinished = true;
+            });
+          };
+        })(this));
+      } else {
+        this.calcClusterSize();
+        this.processScroll(top);
+        return this.state.startFinished = true;
+      }
     },
     getData: function(first, last, cb) {
       if (this.data != null) {
@@ -247,59 +253,57 @@ module.exports = {
     },
     calcRowHeight: function() {
       var child, el, height, i, items, itemsPerRow, itemsPerRowLast, j, k, l, lastTop, maxHeights, rect, ref, row, style, width;
-      if (!this.rowHeight) {
-        if (this.flex) {
-          maxHeights = [0];
-          el = this.clusters[0].$el;
-          lastTop = Number.MIN_VALUE;
-          itemsPerRow = [];
-          itemsPerRowLast = 0;
-          row = el.children[1];
-          items = row.children.length - 1;
-          width = 0;
-          k = 0;
-          for (i = l = 1, ref = items; 1 <= ref ? l <= ref : l >= ref; i = 1 <= ref ? ++l : --l) {
-            child = row.children[i];
-            rect = child.getBoundingClientRect();
-            style = window.getComputedStyle(child);
-            height = rect.height + parseInt(style.marginTop, 10) + parseInt(style.marginBottom, 10);
-            width += rect.width;
-            if (rect.top > lastTop + maxHeights[k] * 1 / 3 && i > 1) {
-              j = i - 1;
-              k++;
-              itemsPerRow.push(j - itemsPerRowLast);
-              itemsPerRowLast = j;
+      if (this.flex) {
+        maxHeights = [0];
+        el = this.clusters[0].$el;
+        lastTop = Number.MIN_VALUE;
+        itemsPerRow = [];
+        itemsPerRowLast = 0;
+        row = el.children[1];
+        items = row.children.length - 1;
+        width = 0;
+        k = 0;
+        for (i = l = 1, ref = items; 1 <= ref ? l <= ref : l >= ref; i = 1 <= ref ? ++l : --l) {
+          child = row.children[i];
+          rect = child.getBoundingClientRect();
+          style = window.getComputedStyle(child);
+          height = rect.height + parseInt(style.marginTop, 10) + parseInt(style.marginBottom, 10);
+          width += rect.width;
+          if (rect.top > lastTop + maxHeights[k] * 1 / 3 && i > 1) {
+            j = i - 1;
+            k++;
+            itemsPerRow.push(j - itemsPerRowLast);
+            itemsPerRowLast = j;
+            lastTop = rect.top;
+            maxHeights.push(height);
+          } else {
+            if (lastTop < rect.top) {
               lastTop = rect.top;
-              maxHeights.push(height);
-            } else {
-              if (lastTop < rect.top) {
-                lastTop = rect.top;
-              }
-              if (maxHeights[maxHeights.length - 1] < height) {
-                maxHeights[maxHeights.length - 1] = height;
-              }
+            }
+            if (maxHeights[maxHeights.length - 1] < height) {
+              maxHeights[maxHeights.length - 1] = height;
             }
           }
-          itemsPerRow.shift();
-          maxHeights.shift();
-          if (itemsPerRow.length > 0) {
-            this.itemsPerRow = Math.floor(itemsPerRow.reduce(function(a, b) {
-              return a + b;
-            }) / itemsPerRow.length * this.flexFac);
-          } else {
-            this.itemsPerRow = items;
-          }
-          this.itemWidth = width / items;
-          if (maxHeights.length > 0) {
-            this.rowHeight = maxHeights.reduce(function(a, b) {
-              return a + b;
-            }) / maxHeights.length;
-          } else {
-            this.rowHeight = height;
-          }
-        } else {
-          this.rowHeight = this.clusters[0].$el.children[1].getBoundingClientRect().height;
         }
+        itemsPerRow.shift();
+        maxHeights.shift();
+        if (itemsPerRow.length > 0) {
+          this.itemsPerRow = Math.floor(itemsPerRow.reduce(function(a, b) {
+            return a + b;
+          }) / itemsPerRow.length * this.flexFac);
+        } else {
+          this.itemsPerRow = items;
+        }
+        this.itemWidth = width / items;
+        if (maxHeights.length > 0) {
+          this.rowHeight = maxHeights.reduce(function(a, b) {
+            return a + b;
+          }) / maxHeights.length;
+        } else {
+          this.rowHeight = height;
+        }
+      } else {
+        this.rowHeight = this.clusters[0].$el.children[1].getBoundingClientRect().height;
       }
       return this.calcClusterSize();
     },
