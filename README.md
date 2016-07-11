@@ -36,7 +36,7 @@ components: {
 ```
 ```html
 <clusterize :data="rowsData">
-  <clusterize-row>{{data}}</clusterize-row>
+  <clusterize-row>{{data}} - index: {{index}}</clusterize-row>
   <p slot="loading">loading...</p>
 </clusterize>
 ```

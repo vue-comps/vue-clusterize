@@ -71,7 +71,7 @@ describe "clusterize", ->
           for clusterel in clsels
             rowels = clusterel.querySelectorAll("div.clusterize-row")
             for row in rowels
-              row.should.have.text i+''
+              row.should.have.text "#{i} - index: #{i-1}"
               i++
 
         it "should have a hidden loading item", ->
@@ -91,7 +91,7 @@ describe "clusterize", ->
         for clusterel in clel.querySelectorAll("div.clusterize-cluster")
           rowels = clusterel.querySelectorAll("div.clusterize-row")
           for row in rowels
-            row.should.have.text i+''
+            row.should.have.text "#{i} - index: #{i-1}"
             i++
 
       it "should transit at scroll top 918", (done) ->
@@ -105,7 +105,7 @@ describe "clusterize", ->
           for clusterel in clel.querySelectorAll("div.clusterize-cluster")
             rowels = clusterel.querySelectorAll("div.clusterize-row")
             for row in rowels
-              row.should.have.text i+''
+              row.should.have.text "#{i} - index: #{i-1}"
               i++
           cl.scrollTop = 0
           cl.$nextTick done
@@ -125,7 +125,7 @@ describe "clusterize", ->
             rowels = clusterel.querySelectorAll("div.clusterize-row")
             rowels.should.have.length(cl.clusterSize)
             for row in rowels
-              row.should.have.text i+''
+              row.should.have.text "#{i} - index: #{i-1}"
               i++
           done()
 
@@ -160,7 +160,7 @@ describe "clusterize", ->
           rowels = clsels[nr].querySelectorAll("div.clusterize-row")
           rowels.should.have.length(cl.clusterSize)
           for row in rowels
-            row.should.have.text i+''
+            row.should.have.text "#{i}"
             i++
           j++
           done() if j == 3
