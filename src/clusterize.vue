@@ -158,6 +158,7 @@ module.exports =
         count = @flexInitial
       @getData 0,count, (data) =>
         @getAndProcessDataCount()
+        @clusters[0].index = 0
         if @flex
           @clusters[0].data = [data]
         else
@@ -279,6 +280,7 @@ module.exports =
           else
             @clusters[relI].$after @$els.firstRow
           @clusters[relI].nr = absI
+          @clusters[relI].index = absI*@clusterSize
           # change data of the moving cluster
           @fillClusterWithData @clusters[relI], absI*@clusterSize, (absI+1)*@clusterSize-1
       @updateFirstRowHeight()

@@ -202,6 +202,7 @@ module.exports = {
       return this.getData(0, count, (function(_this) {
         return function(data) {
           _this.getAndProcessDataCount();
+          _this.clusters[0].index = 0;
           if (_this.flex) {
             _this.clusters[0].data = [data];
           } else {
@@ -377,6 +378,7 @@ module.exports = {
             this.clusters[relI].$after(this.$els.firstRow);
           }
           this.clusters[relI].nr = absI;
+          this.clusters[relI].index = absI * this.clusterSize;
           this.fillClusterWithData(this.clusters[relI], absI * this.clusterSize, (absI + 1) * this.clusterSize - 1);
         }
       }

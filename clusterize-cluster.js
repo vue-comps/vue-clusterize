@@ -12,6 +12,9 @@ module.exports = {
     "nr": {
       type: Number
     },
+    "index": {
+      type: Number
+    },
     "height": {
       type: Number
     },
@@ -60,6 +63,7 @@ module.exports = {
       scope.$forContext = this;
       this.Vue.util.defineReactive(scope, this.bindingName, this.data[i]);
       this.Vue.util.defineReactive(scope, "loading", this.loading);
+      this.Vue.util.defineReactive(scope, "index", this.index + i);
       ref = this.rowWatchers;
       for (key in ref) {
         val = ref[key];
@@ -69,6 +73,16 @@ module.exports = {
       frag = this.factory.create(this, scope, this.$options._frag);
       frag.before(this.end);
       return this.frags[i] = frag;
+    },
+    updateIndex: function() {
+      var frag, i, j, len, ref, results;
+      ref = this.frags;
+      results = [];
+      for (i = j = 0, len = ref.length; j < len; i = ++j) {
+        frag = ref[i];
+        results.push(frag.scope.index = this.index + i);
+      }
+      return results;
     },
     destroyFrag: function(i) {
       return this.frags[i].remove();
@@ -100,6 +114,7 @@ module.exports = {
     }
   },
   watch: {
+    "index": "updateIndex",
     "factory": "redraw",
     "rowWatchers": function(newRW, oldRW) {
       var key, results, val;

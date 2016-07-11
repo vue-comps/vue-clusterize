@@ -27,6 +27,8 @@ module.exports =
       default: 0
     "nr":
       type: Number
+    "index":
+      type: Number
     "height":
       type: Number
     "data":
@@ -60,12 +62,16 @@ module.exports =
       scope.$forContext = @
       @Vue.util.defineReactive(scope,@bindingName,@data[i])
       @Vue.util.defineReactive(scope,"loading",@loading)
+      @Vue.util.defineReactive(scope,"index",@index+i)
       for key,val of @rowWatchers
         @Vue.util.defineReactive(scope,key,val.vm[val.prop])
         scope[key] = val.vm[val.prop]
       frag = @factory.create(@, scope, @$options._frag)
       frag.before(@end)
       @frags[i] = frag
+    updateIndex: ->
+      for frag,i in @frags
+        frag.scope.index = @index+i
     destroyFrag: (i) ->
       @frags[i].remove()
     initRowWatchers: (key,obj) ->
@@ -80,6 +86,7 @@ module.exports =
           @destroyFrag(i)
           @createFrag(i)
   watch:
+    "index": "updateIndex"
     "factory": "redraw"
     "rowWatchers": (newRW,oldRW) ->
       for key,val of newRW
