@@ -2,9 +2,8 @@
 .container
   a(href="https://vue-comps.github.io/vue-clusterize/blob/master/dev/basic.vue") source
   clusterize(v-ref:clusterize v-bind:data="rowsData" v-bind:height="400" v-bind:style="{width:'200px'}")
-    div {{data}}
-      tooltip(position="body") {{data}}
-    p(slot="loading") loading
+    div.clusterize-row {{data}}
+      tooltip(position="body") index: {{index}}
 </template>
 
 <script lang="coffee">

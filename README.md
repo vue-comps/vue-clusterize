@@ -36,7 +36,7 @@ components: {
 <clusterize :data="rowsData">
   <!-- default slot will be used as a template for a single row -->
   <div>{{data}}</div>
-  <!-- loading slot will be displayed in each cluster which is busy fetching data -->
+  <!-- (optional) loading slot will be displayed in each cluster which is busy fetching data - only with dynamic data -->
   <p slot="loading">loading...</p>
 </clusterize>
 ```
@@ -46,7 +46,7 @@ For examples see [`dev/`](https://github.com/vue-comps/vue-clusterize/tree/maste
 | Name | type | description |
 | ---:| --- |  --- |
 | data | Object | a single datapiece (see `binding-name` in props) |
-| loading | Number |  will be 0 when finished |
+| loading | Number |  will be 0 when finished loading data (only with dynamic data) |
 | index | Number | index of the datapiece |
 | height | Number | the height of a single row |
 
@@ -54,7 +54,7 @@ you can add your own variables with the `row-watchers` prop.
 
 example:
 ```html
-<clusterize :data="rowsData">
+<clusterize @get-data="getData">
   <div v-if="!loading" v-bind:style="{height:height+'px'}">{{data}} - index: {{index}}</div>
   <p slot="loading">loading...</p>
 </clusterize>
@@ -100,7 +100,7 @@ Keep in mind, that `padding` of the parent will be ignored. If you need a paddin
 
 ## Dynamic data
 
-The clusterize instance emits to events to get dynamic data:
+The clusterize instance emits two events to get dynamic data:
 ```html
 <clusterize @get-data="getData" @get-data-count="getDataCount">
 ```
@@ -115,6 +115,7 @@ methods:
     cb(dataCount)
   }
 ```
+
 To issue a manual redraw, call `redraw()` on the clusterize instance.
 
 If you want to enforce a scroll-to-top use the `scrollTop` prop.

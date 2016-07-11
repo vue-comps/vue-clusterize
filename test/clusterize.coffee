@@ -74,12 +74,7 @@ describe "clusterize", ->
               row.should.have.text "#{i} - index: #{i-1}"
               i++
 
-        it "should have a hidden loading item", ->
-          for clusterel in clsels
-            lel = clusterel.querySelector("div.clusterize-cluster-loading[style='display: none;']")
-            lel.should.exit
-            lel.should.contain "p[slot='loading']"
-            lel.should.have.text "loading"
+
 
 
     describe "scrolling", ->
@@ -164,3 +159,11 @@ describe "clusterize", ->
             i++
           j++
           done() if j == 3
+
+    it "should have a hidden loading item afterwards", ->
+      clsels = clel.querySelectorAll("div.clusterize-cluster")
+      for clusterel in clsels
+        lel = clusterel.querySelector("div.clusterize-cluster-loading[style='display: none;']")
+        lel.should.exit
+        lel.should.contain "p[slot='loading']"
+        lel.should.have.text "loading"
