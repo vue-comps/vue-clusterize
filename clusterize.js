@@ -198,7 +198,7 @@ module.exports = {
       if (this.flex) {
         count = this.flexInitial;
       }
-      if (!this.rowHeight) {
+      if (!this.rowHeight || this.flex) {
         return this.getData(0, count, (function(_this) {
           return function(data) {
             _this.getAndProcessDataCount();
@@ -269,6 +269,9 @@ module.exports = {
         k = 0;
         for (i = l = 1, ref = items; 1 <= ref ? l <= ref : l >= ref; i = 1 <= ref ? ++l : --l) {
           child = row.children[i];
+          if (!child) {
+            return;
+          }
           rect = child.getBoundingClientRect();
           style = window.getComputedStyle(child);
           height = rect.height + parseInt(style.marginTop, 10) + parseInt(style.marginBottom, 10);
@@ -297,6 +300,9 @@ module.exports = {
           }) / itemsPerRow.length * this.flexFac);
         } else {
           this.itemsPerRow = items;
+        }
+        if (this.itemsPerRow === 0) {
+          this.itemsPerRow = 1;
         }
         this.itemWidth = width / items;
         if (maxHeights.length > 0) {

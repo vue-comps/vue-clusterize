@@ -155,7 +155,7 @@ module.exports =
       count = 0
       if @flex
         count = @flexInitial
-      unless @rowHeight
+      if not @rowHeight or @flex
         @getData 0,count, (data) =>
           @getAndProcessDataCount()
           @clusters[0].index = 0
@@ -207,6 +207,7 @@ module.exports =
         k = 0
         for i in [1..items]
           child = row.children[i]
+          return unless child
           rect = child.getBoundingClientRect()
           style = window.getComputedStyle(child)
           height = rect.height + parseInt(style.marginTop,10) + parseInt(style.marginBottom,10)
@@ -229,6 +230,7 @@ module.exports =
           @itemsPerRow = Math.floor(itemsPerRow.reduce((a,b)->a+b)/itemsPerRow.length*@flexFac)
         else
           @itemsPerRow = items
+        @itemsPerRow = 1 if @itemsPerRow == 0
         @itemWidth = width / items
         if maxHeights.length > 0
           @rowHeight = maxHeights.reduce((a,b)->a+b)/maxHeights.length
