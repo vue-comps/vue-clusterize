@@ -94,8 +94,7 @@ Or use autoheight:
     <div style="position:relative">
       <clusterize :data="rowsData" auto-height>
 ```
-In this case clusterize will always fill the nearest parent element with either `position:relative;` or `position:absolute;`
-`updateHeight` will be called automatically, e.g. on window resize.  
+In this case clusterize will always fill the nearest parent element with either `position:relative;` or `position:absolute;`.  
 Keep in mind, that `padding` of the parent will be ignored. If you need a padding, use a wrapper `<div>`.
 
 ## Dynamic data
@@ -125,9 +124,9 @@ If you want to enforce a scroll-to-top use the `scrollTop` prop.
 When using the `flex` prop, the usage changes. You will now recieve a array of row items per row which you can use in a `v-for`:
 ```html
 <clusterize :data="rowsData" flex>
-  <clusterize-row style="display:flex;align-items:center;justify-content:space-between">
+  <div style="display:flex;align-items:center;justify-content:space-between">
     <div v-for="d in data">{{d}}</div>
-  </clusterize-row>
+  </div>
 </clusterize>
 ```
 The row height, items per row and rows per cluster will be recalculated on resize of clusterize.
