@@ -390,9 +390,9 @@ module.exports = {
         relI = absI % 3;
         if (this.clusters[relI].nr !== absI || repaint) {
           if (down) {
-            this.clusters[relI].$before(this.$els.lastRow);
+            this.clusters[relI].$before(this.$refs.lastRow);
           } else {
-            this.clusters[relI].$after(this.$els.firstRow);
+            this.clusters[relI].$after(this.$refs.firstRow);
           }
           this.clusters[relI].nr = absI;
           this.clusters[relI].index = absI * this.clusterSize;
@@ -486,7 +486,7 @@ module.exports = {
       }
     }
   },
-  ready: function() {
+  mounted: function() {
     var child, l, len, ref;
     ref = this.$children;
     for (l = 0, len = ref.length; l < len; l++) {
@@ -521,4 +521,4 @@ module.exports = {
 };
 
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<div class=clusterize :style=computedStyle :class=\"{'loading':state.loading, 'not-started':!state.started}\" @scroll=onScroll><div class=clusterize-first-row v-el:first-row=v-el:first-row v-bind:style=\"{height:firstRowHeight+'px'}\"></div><clusterize-cluster v-bind:binding-name=bindingName v-bind:row-watchers=rowWatchers v-bind:parent-vm=parentVm><slot name=loading></slot></clusterize-cluster><clusterize-cluster v-bind:binding-name=bindingName v-bind:row-watchers=rowWatchers v-bind:parent-vm=parentVm><slot name=loading></slot></clusterize-cluster><clusterize-cluster v-bind:binding-name=bindingName v-bind:row-watchers=rowWatchers v-bind:parent-vm=parentVm><slot name=loading></slot></clusterize-cluster><div class=clusterize-last-row v-el:last-row=v-el:last-row v-bind:style=\"{height:lastRowHeight+'px'}\"></div></div>"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<div class=clusterize :style=computedStyle :class=\"{'loading':state.loading, 'not-started':!state.started}\" @scroll=onScroll><div class=clusterize-first-row v-ref='first-row'=v-ref='first-row' v-bind:style=\"{height:firstRowHeight+'px'}\"></div><clusterize-cluster v-bind:binding-name=bindingName v-bind:row-watchers=rowWatchers v-bind:parent-vm=parentVm><slot name=loading></slot></clusterize-cluster><clusterize-cluster v-bind:binding-name=bindingName v-bind:row-watchers=rowWatchers v-bind:parent-vm=parentVm><slot name=loading></slot></clusterize-cluster><clusterize-cluster v-bind:binding-name=bindingName v-bind:row-watchers=rowWatchers v-bind:parent-vm=parentVm><slot name=loading></slot></clusterize-cluster><div class=clusterize-last-row v-el:last-row=v-el:last-row v-bind:style=\"{height:lastRowHeight+'px'}\"></div></div>"

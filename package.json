@@ -17,6 +17,7 @@
     "node": "*"
   },
   "dependencies": {
+    "vue": "^2.0.7",
     "vue-mixins": "^0.2.10"
   },
   "devDependencies": {
@@ -39,14 +40,14 @@
     "karma-webpack": "^1.7.0",
     "mocha": "^2.5.3",
     "pug": "^2.0.0-beta3",
-    "stylus-loader": "^0.52.4",
+    "stylus-loader": "^2.3.1",
     "template-html-loader": "0.0.3",
-    "vue": "^1.0.25",
+    "vue": "^2.0.7",
     "vue-compiler": "^0.3.0",
     "vue-comps-tooltip": "^0.2.0",
     "vue-dev-server": "^0.2.10",
     "vue-html-loader": "^1.2.2",
-    "vue-loader": "^8.5.2",
+    "vue-loader": "^9.0.0",
     "webpack": "^1.13.1"
   },
   "keywords": [
@@ -56,7 +57,7 @@
   ],
   "readmeFilename": "README.md",
   "scripts": {
-    "build": "NODE_ENV=production vue-compiler --out . src/*.vue",
+    "build": "NODE_ENV=production vue-compiler --out . src/:.vue+",
     "dev": "vue-dev-server",
     "watch": "karma start --browsers Chrome --auto-watch --reporters spec",
     "test": "karma start --single-run",

@@ -4,7 +4,7 @@
   p resize the window
   p rows per cluster: {{clusterSize}}
   .scrollcontainer(style="height:80%;position:relative")
-    clusterize(v-ref:clusterize v-bind:data="rowsData" auto-height v-bind:style="{width:'200px',border:'solid 1px black'}")
+    clusterize(ref="clusterize" v-bind:data="rowsData" auto-height v-bind:style="{width:'200px',border:'solid 1px black'}")
       div.clusterize-row {{data}}
 </template>
 
@@ -19,12 +19,12 @@ module.exports =
     rowsData: (x for x in [1..10000])
     clusterSize: 0
     timer: null
-  attached: ->
+  mounted: ->
     @timer = setInterval (=> @clusterSize = @$refs.clusterize.clusterSize),500
     document.body.setAttribute "style","height:100%"
     @setCss document.body, "height", "100%"
     @setCss document.documentElement, "height", "100%"
-  detached: ->
+  destroyed: ->
     clearInterval(@timer) if @timer?
     @setCss document.body, "height"
     @setCss document.documentElement, "height"
