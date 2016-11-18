@@ -39,6 +39,7 @@
     "karma-webpack": "^1.7.0",
     "mocha": "^2.5.3",
     "pug": "^2.0.0-beta3",
+    "stylus-loader": "^0.52.4",
     "template-html-loader": "0.0.3",
     "vue": "^1.0.25",
     "vue-compiler": "^0.3.0",
