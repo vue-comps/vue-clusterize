@@ -5,7 +5,7 @@
   :style="{height:height+'px',overflow:'visible',position:'relative',margin:0,padding:0}"
   )
   .clusterize-cluster-loading(
-    v-el:loading,
+    ref="loading",
     v-show="loading"
     )
     slot loading...
@@ -46,7 +46,7 @@ module.exports =
     end: null
     frags: []
 
-  ready: ->
+  mounted: ->
     @end = @Vue.util.createAnchor('clusterize-cluster-end')
     @$el.appendChild(@end)
     for key,val of @rowWatchers
@@ -57,7 +57,6 @@ module.exports =
       parentScope = @parentVm
       scope = Object.create(parentScope)
       scope.$refs = Object.create(parentScope.$refs)
-      scope.$els = Object.create(parentScope.$els)
       scope.$parent = parentScope
       scope.$forContext = @
       @Vue.util.defineReactive(scope,@bindingName,@data[i])

@@ -5,14 +5,14 @@
   :class="{'loading':state.loading, 'not-started':!state.started}",
   @scroll="onScroll"
   )
-  .clusterize-first-row(v-el:first-row v-bind:style="{height:firstRowHeight+'px'}")
+  .clusterize-first-row(ref="first-row" v-bind:style="{height:firstRowHeight+'px'}")
   clusterize-cluster(v-bind:binding-name="bindingName" v-bind:row-watchers="rowWatchers" v-bind:parent-vm="parentVm")
     slot(name="loading")
   clusterize-cluster(v-bind:binding-name="bindingName" v-bind:row-watchers="rowWatchers" v-bind:parent-vm="parentVm")
     slot(name="loading")
   clusterize-cluster(v-bind:binding-name="bindingName" v-bind:row-watchers="rowWatchers" v-bind:parent-vm="parentVm")
     slot(name="loading")
-  .clusterize-last-row(v-el:last-row v-bind:style="{height:lastRowHeight+'px'}")
+  .clusterize-last-row(ref="last-row" v-bind:style="{height:lastRowHeight+'px'}")
 </template>
 
 <script lang="coffee">
@@ -354,7 +354,7 @@ module.exports =
         for cluster in @clusters
           cluster.factory = factory
 
-  ready: ->
+  mounted: ->
     for child in @$children
       if child.isCluster
         @clusters.push child

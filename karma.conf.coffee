@@ -1,7 +1,7 @@
 module.exports = (config) ->
   config.set
     preprocessors:
-      "**/*.coffee": ["webpack",'sourcemap']
+      "**/:.coffee+": ["webpack",'sourcemap']
     webpack:
       devtool: 'inline-source-map'
       resolve:

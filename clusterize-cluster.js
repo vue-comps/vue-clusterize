@@ -40,7 +40,7 @@ module.exports = {
       frags: []
     };
   },
-  ready: function() {
+  mounted: function() {
     var key, ref, results, val;
     this.end = this.Vue.util.createAnchor('clusterize-cluster-end');
     this.$el.appendChild(this.end);
@@ -58,7 +58,6 @@ module.exports = {
       parentScope = this.parentVm;
       scope = Object.create(parentScope);
       scope.$refs = Object.create(parentScope.$refs);
-      scope.$els = Object.create(parentScope.$els);
       scope.$parent = parentScope;
       scope.$forContext = this;
       this.Vue.util.defineReactive(scope, this.bindingName, this.data[i]);
@@ -163,4 +162,4 @@ module.exports = {
 };
 
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<div class=clusterize-cluster :class={loading:loading} :style=\"{height:height+'px',overflow:'visible',position:'relative',margin:0,padding:0}\"><div class=clusterize-cluster-loading v-el:loading=v-el:loading v-show=loading><slot>loading...</slot></div></div>"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<div class=clusterize-cluster :class={loading:loading} :style=\"{height:height+'px',overflow:'visible',position:'relative',margin:0,padding:0}\"><div class=clusterize-cluster-loading v-ref='loading'=v-ref='loading' v-show=loading><slot>loading...</slot></div></div>"

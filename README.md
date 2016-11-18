@@ -84,7 +84,7 @@ example:
 
 There are two ways clusterize can be used, either use a fixed height:
 ```html
-<clusterize :data="rowsData" :height="400" v-ref:clusterize>
+<clusterize :data="rowsData" :height="400" ref="clusterize">
 ```
 
 Or use autoheight:
